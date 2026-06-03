@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="google" content="notranslate">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Péptidos & Biohacking — Dr. Fernando Valenzuela | Medicina Regenerativa Hermosillo</title>
 <meta name="description" content="Valoración inicial de 15 minutos con el Dr. Fernando Valenzuela. Protocolos de péptidos personalizados bajo supervisión médica. Hermosillo, Sonora."/>
@@ -737,8 +738,8 @@ footer{background:var(--navy);padding:52px 32px 24px}
     <div class="gate-subtitle" data-es="Dr. Fernando Valenzuela · Medicina Regenerativa" data-en="Dr. Fernando Valenzuela · Regenerative Medicine">Dr. Fernando Valenzuela · Medicina Regenerativa</div>
     <div class="gate-divider"></div>
     <div class="gate-lang">
-      <button class="glb on" id="gate-es" onclick="setLang('es')">ES</button>
-      <button class="glb" id="gate-en" onclick="setLang('en')">EN</button>
+      <button class="glb on" id="gate-es" translate="no" onclick="setLang('es')">ES</button>
+      <button class="glb" id="gate-en" translate="no" onclick="setLang('en')">EN</button>
     </div>
     <h2 class="gate-title" data-es="Acceso Restringido — +18" data-en="Restricted Access — 18+">Acceso Restringido — +18</h2>
     <p class="gate-body" data-es="Este sitio contiene información médica destinada a adultos mayores de 18 años. Por favor confirma tu edad." data-en="This site contains medical information for adults 18+. Please confirm your age.">Este sitio contiene información médica destinada a adultos mayores de 18 años. Por favor confirma tu edad.</p>
@@ -795,11 +796,11 @@ footer{background:var(--navy);padding:52px 32px 24px}
 
 <!-- NAV -->
 <nav id="main-nav">
-  <div class="nav-brand" id="nav-brand">Péptidos &amp; <em>Biohacking</em></div>
+  <div class="nav-brand" id="nav-brand" translate="no">Péptidos &amp; <em>Biohacking</em></div>
   <div class="nav-right">
     <div class="nav-lang" id="nav-lang">
-      <button class="lbtn on" id="btn-es" onclick="setLang('es')">ES</button>
-      <button class="lbtn" id="btn-en" onclick="setLang('en')">EN</button>
+      <button class="lbtn on" id="btn-es" translate="no" onclick="setLang('es')">ES</button>
+      <button class="lbtn" id="btn-en" translate="no" onclick="setLang('en')">EN</button>
     </div>
     <button class="nav-consult" onclick="openConsult()" data-es="Consulta" data-en="Consult">Consulta</button>
   </div>
@@ -844,7 +845,7 @@ footer{background:var(--navy);padding:52px 32px 24px}
         <div class="istat"><span class="istat-n">15+</span><span class="istat-l" data-es="Protocolos disponibles" data-en="Available protocols">Protocolos disponibles</span></div>
         <div class="istat"><span class="istat-n">+200</span><span class="istat-l" data-es="Pacientes atendidos" data-en="Patients treated">Pacientes atendidos</span></div>
         <div class="istat"><span class="istat-n">98%</span><span class="istat-l" data-es="Satisfacción" data-en="Satisfaction">Satisfacción</span></div>
-        <div class="istat"><span class="istat-n">5+</span><span class="istat-l" data-es="Años experiencia" data-en="Years exp.">Años experiencia</span></div>
+        <div class="istat"><span class="istat-n">20+</span><span class="istat-l" data-es="Años experiencia" data-en="Years exp.">Años experiencia</span></div>
       </div>
     </div>
     <div class="intro-img">
@@ -932,7 +933,7 @@ footer{background:var(--navy);padding:52px 32px 24px}
     <div class="drv-con">
       <div class="drv-ey" data-es="Tu Médico" data-en="Your Doctor">Tu Médico</div>
       <h2 class="drv-name">Dr. Fernando Valenzuela Carpio</h2>
-      <p class="drv-bio" data-es="Especialista en medicina regenerativa con más de 5 años aplicando protocolos avanzados de péptidos. Cada paciente recibe un protocolo 100% personalizado." data-en="Specialist in regenerative medicine with over 5 years applying advanced peptide protocols. Each patient receives a 100% personalized protocol.">Especialista en medicina regenerativa con más de 5 años. Cada paciente recibe un protocolo 100% personalizado.</p>
+      <p class="drv-bio" data-es="Especialista en medicina regenerativa con más de 20 años aplicando protocolos avanzados de péptidos. Cada paciente recibe un protocolo 100% personalizado." data-en="Specialist in regenerative medicine with over 20 years applying advanced peptide protocols. Each patient receives a 100% personalized protocol.">Especialista en medicina regenerativa con más de 20 años. Cada paciente recibe un protocolo 100% personalizado.</p>
       <div class="cred-list">
         <div class="cred"><div class="cred-ic"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="cred-t"><strong data-es="Médico Certificado" data-en="Certified Physician">Médico Certificado</strong><span data-es="Práctica médica certificada en México" data-en="Certified medical practice in Mexico">Práctica médica certificada en México</span></div></div>
         <div class="cred"><div class="cred-ic"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div><div class="cred-t"><strong data-es="Especialidad en Péptidos" data-en="Peptide Specialty">Especialidad en Péptidos</strong><span data-es="Formación en medicina de precisión internacional" data-en="International precision medicine training">Formación en medicina de precisión internacional</span></div></div>
@@ -1472,7 +1473,7 @@ function sendToWA(){
 
 function bookCal(){
   const msg=buildWAMsg(lang==='es');
-  window.open('https://calendly.com/drvalenzuela-peptbiohacking/15min','_blank');
+  window.open('https://calendly.com/mdsportsmedicineandent/30min','_blank');
   setTimeout(()=>window.open('https://wa.me/'+WA+'?text='+encodeURIComponent(msg),'_blank'),1500);
   // Show success
   document.getElementById('csteps').innerHTML=`

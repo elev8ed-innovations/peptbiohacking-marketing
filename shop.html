@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="google" content="notranslate">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tienda de Péptidos — PeptBiohacking | Dr. Valenzuela Hermosillo</title>
 <meta name="description" content="Péptidos bajo supervisión médica del Dr. Fernando Valenzuela. Hermosillo, Sonora." />
@@ -184,7 +185,8 @@ nav{
 .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .pcard{background:var(--white);border-radius:12px;border:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column;transition:all .3s}
 .pcard:hover{transform:translateY(-3px);box-shadow:0 16px 44px rgba(11,28,46,0.09)}
-.pcard-img{height:100px;background:var(--offwhite);display:flex;align-items:center;justify-content:center;position:relative}
+.pcard-img{height:150px;background:var(--offwhite);display:flex;align-items:center;justify-content:center;position:relative}
+.pcard-photo{width:100%;height:100%;object-fit:contain;padding:8px}
 .pcard-icon{width:100%;height:140px;border-radius:10px;background:rgba(42,124,111,0.04);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
 .pcat-badge{position:absolute;top:10px;left:10px;background:var(--navy);color:var(--white);font-size:8px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:20px}
 .pmed-badge{position:absolute;top:10px;right:10px;background:rgba(184,146,90,0.12);border:1px solid rgba(184,146,90,0.25);color:var(--gold);font-size:8px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:20px}
@@ -331,8 +333,8 @@ footer{background:var(--navy);padding:40px 32px 24px}
     <div class="rg-subtitle" data-es="Catálogo Médico Certificado" data-en="Certified Medical Catalog">Catálogo Médico Certificado</div>
     <div class="rg-divider"></div>
     <div class="rg-lang">
-      <button class="rlb on" id="rg-es" onclick="setLang('es')">ES</button>
-      <button class="rlb" id="rg-en" onclick="setLang('en')">EN</button>
+      <button class="rlb on" id="rg-es" translate="no" onclick="setLang('es')">ES</button>
+      <button class="rlb" id="rg-en" translate="no" onclick="setLang('en')">EN</button>
     </div>
     <div class="rg-tag">⚗ <span data-es="Para Uso de Investigación" data-en="For Research Use">Para Uso de Investigación</span></div>
     <h2 class="rg-title" data-es="Catálogo de Investigación" data-en="Research Catalog">Catálogo de Investigación</h2>
@@ -441,12 +443,12 @@ footer{background:var(--navy);padding:40px 32px 24px}
       <span data-es="Sitio Principal" data-en="Main Site">Sitio Principal</span>
     </a>
     <div class="nav-sep"></div>
-    <div class="nav-brand">Péptidos &amp; <em>Biohacking</em> <span style="font-family:'Outfit',sans-serif;font-size:12px;font-weight:400;color:var(--muted)" data-es="— Tienda" data-en="— Shop">— Tienda</span></div>
+    <div class="nav-brand" translate="no">Péptidos &amp; <em>Biohacking</em> <span style="font-family:'Outfit',sans-serif;font-size:12px;font-weight:400;color:var(--muted)" data-es="— Tienda" data-en="— Shop">— Tienda</span></div>
   </div>
   <div class="nav-right">
     <div class="nlang">
-      <button class="nlb on" id="n-es" onclick="setLang('es')">ES</button>
-      <button class="nlb" id="n-en" onclick="setLang('en')">EN</button>
+      <button class="nlb on" id="n-es" translate="no" onclick="setLang('es')">ES</button>
+      <button class="nlb" id="n-en" translate="no" onclick="setLang('en')">EN</button>
     </div>
     
   </div>
@@ -491,7 +493,7 @@ footer{background:var(--navy);padding:40px 32px 24px}
     
     <div class="pcard" data-cat="glp3">
       <div class="pcard-img">
-        <div class="pcard-icon" style="width:100%;height:140px;background:rgba(42,124,111,0.04);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px"><svg viewBox="0 0 90 140" width="80" height="124" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bgglp3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#1a4fa0"/><stop offset="45%" style="stop-color:#2563c4"/><stop offset="70%" style="stop-color:#3d72d4"/><stop offset="100%" style="stop-color:#1a4fa0"/></linearGradient><linearGradient id="capglp3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#888"/><stop offset="50%" style="stop-color:#d8d8d8"/><stop offset="100%" style="stop-color:#888"/></linearGradient></defs><rect x="30" y="3" width="30" height="13" rx="3" fill="url(#capglp3)"/><rect x="32" y="2" width="26" height="5" rx="2" fill="#aaa"/><ellipse cx="45" cy="16" rx="15" ry="3.5" fill="#1a4fa0"/><rect x="24" y="16" width="42" height="96" rx="7" fill="url(#bgglp3)"/><ellipse cx="45" cy="112" rx="21" ry="4" fill="#1a4fa0"/><rect x="27" y="46" width="36" height="58" rx="3" fill="white" fill-opacity="0.97" stroke="#dde" stroke-width="0.4"/><text x="45" y="57" text-anchor="middle" font-size="5.5" font-weight="700" fill="#2A7C6F" font-family="sans-serif">PEPTIDOS &amp;</text><text x="45" y="65" text-anchor="middle" font-size="6.5" font-weight="800" fill="#0B1C2E" font-family="sans-serif">BIOHACKING</text><text x="45" y="71" text-anchor="middle" font-size="3.8" fill="#777" font-family="sans-serif">Dr. Fernando Valenzuela</text><rect x="29" y="74" width="32" height="14" rx="2" fill="#2A7C6F"/><text x="45" y="84" text-anchor="middle" font-size="6.5" font-weight="800" fill="white" font-family="sans-serif">GLP-3</text><rect x="31" y="91" width="28" height="7" rx="2" fill="#6a35a0"/><text x="45" y="97" text-anchor="middle" font-size="5" font-weight="700" fill="white" font-family="sans-serif">12 mg</text><ellipse cx="34" cy="30" rx="3" ry="5" fill="rgba(255,255,255,0.12)" transform="rotate(-15,34,30)"/></svg></div>
+        <img src="images/products/glp3-12mg.jpg" class="pcard-photo" alt="GLP-3 12mg">
         <span class="pcat-badge" data-es="Pérdida de Peso" data-en="Weight Loss">Pérdida de Peso</span>
         <span class="pmed-badge" data-es="Médico" data-en="Medical">Médico</span>
       </div>
@@ -513,7 +515,7 @@ footer{background:var(--navy);padding:40px 32px 24px}
     </div>
     <div class="pcard" data-cat="cjc">
       <div class="pcard-img">
-        <div class="pcard-icon" style="width:100%;height:140px;background:rgba(42,124,111,0.04);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px"><svg viewBox="0 0 90 140" width="80" height="124" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bgcjc" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#1a4fa0"/><stop offset="45%" style="stop-color:#2563c4"/><stop offset="70%" style="stop-color:#3d72d4"/><stop offset="100%" style="stop-color:#1a4fa0"/></linearGradient><linearGradient id="capcjc" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#888"/><stop offset="50%" style="stop-color:#d8d8d8"/><stop offset="100%" style="stop-color:#888"/></linearGradient></defs><rect x="30" y="3" width="30" height="13" rx="3" fill="url(#capcjc)"/><rect x="32" y="2" width="26" height="5" rx="2" fill="#aaa"/><ellipse cx="45" cy="16" rx="15" ry="3.5" fill="#1a4fa0"/><rect x="24" y="16" width="42" height="96" rx="7" fill="url(#bgcjc)"/><ellipse cx="45" cy="112" rx="21" ry="4" fill="#1a4fa0"/><rect x="27" y="46" width="36" height="58" rx="3" fill="white" fill-opacity="0.97" stroke="#dde" stroke-width="0.4"/><text x="45" y="57" text-anchor="middle" font-size="5.5" font-weight="700" fill="#2A7C6F" font-family="sans-serif">PEPTIDOS &amp;</text><text x="45" y="65" text-anchor="middle" font-size="6.5" font-weight="800" fill="#0B1C2E" font-family="sans-serif">BIOHACKING</text><text x="45" y="71" text-anchor="middle" font-size="3.8" fill="#777" font-family="sans-serif">Dr. Fernando Valenzuela</text><rect x="29" y="74" width="32" height="14" rx="2" fill="#2A7C6F"/><text x="45" y="84" text-anchor="middle" font-size="6.5" font-weight="800" fill="white" font-family="sans-serif">CJC-1295</text><rect x="31" y="91" width="28" height="7" rx="2" fill="#6a35a0"/><text x="45" y="97" text-anchor="middle" font-size="5" font-weight="700" fill="white" font-family="sans-serif">5 mg</text><ellipse cx="34" cy="30" rx="3" ry="5" fill="rgba(255,255,255,0.12)" transform="rotate(-15,34,30)"/></svg></div>
+        <img src="images/products/cjc-ipamorelin.jpg" class="pcard-photo" alt="CJC-1295 / Ipamorelin">
         <span class="pcat-badge" data-es="Hormona de Crecimiento" data-en="Growth Hormone">Hormona de Crecimiento</span>
         <span class="pmed-badge" data-es="Médico" data-en="Medical">Médico</span>
       </div>
@@ -535,7 +537,7 @@ footer{background:var(--navy);padding:40px 32px 24px}
     </div>
     <div class="pcard" data-cat="bpc">
       <div class="pcard-img">
-        <div class="pcard-icon" style="width:100%;height:140px;background:rgba(42,124,111,0.04);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px"><svg viewBox="0 0 90 140" width="80" height="124" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bgbpc" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#1a4fa0"/><stop offset="45%" style="stop-color:#2563c4"/><stop offset="70%" style="stop-color:#3d72d4"/><stop offset="100%" style="stop-color:#1a4fa0"/></linearGradient><linearGradient id="capbpc" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#888"/><stop offset="50%" style="stop-color:#d8d8d8"/><stop offset="100%" style="stop-color:#888"/></linearGradient></defs><rect x="30" y="3" width="30" height="13" rx="3" fill="url(#capbpc)"/><rect x="32" y="2" width="26" height="5" rx="2" fill="#aaa"/><ellipse cx="45" cy="16" rx="15" ry="3.5" fill="#1a4fa0"/><rect x="24" y="16" width="42" height="96" rx="7" fill="url(#bgbpc)"/><ellipse cx="45" cy="112" rx="21" ry="4" fill="#1a4fa0"/><rect x="27" y="46" width="36" height="58" rx="3" fill="white" fill-opacity="0.97" stroke="#dde" stroke-width="0.4"/><text x="45" y="57" text-anchor="middle" font-size="5.5" font-weight="700" fill="#2A7C6F" font-family="sans-serif">PEPTIDOS &amp;</text><text x="45" y="65" text-anchor="middle" font-size="6.5" font-weight="800" fill="#0B1C2E" font-family="sans-serif">BIOHACKING</text><text x="45" y="71" text-anchor="middle" font-size="3.8" fill="#777" font-family="sans-serif">Dr. Fernando Valenzuela</text><rect x="29" y="74" width="32" height="14" rx="2" fill="#2A7C6F"/><text x="45" y="84" text-anchor="middle" font-size="6.5" font-weight="800" fill="white" font-family="sans-serif">BPC-157</text><rect x="31" y="91" width="28" height="7" rx="2" fill="#6a35a0"/><text x="45" y="97" text-anchor="middle" font-size="5" font-weight="700" fill="white" font-family="sans-serif">5 mg</text><ellipse cx="34" cy="30" rx="3" ry="5" fill="rgba(255,255,255,0.12)" transform="rotate(-15,34,30)"/></svg></div>
+        <img src="images/products/bpc157.jpg" class="pcard-photo" alt="BPC-157 / TB-500">
         <span class="pcat-badge" data-es="Recuperación" data-en="Recovery">Recuperación</span>
         <span class="pmed-badge" data-es="Médico" data-en="Medical">Médico</span>
       </div>
@@ -557,7 +559,7 @@ footer{background:var(--navy);padding:40px 32px 24px}
     </div>
     <div class="pcard" data-cat="glow">
       <div class="pcard-img">
-        <div class="pcard-icon" style="width:100%;height:140px;background:rgba(42,124,111,0.04);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px"><svg viewBox="0 0 90 140" width="80" height="124" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bgglow" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#1a4fa0"/><stop offset="45%" style="stop-color:#2563c4"/><stop offset="70%" style="stop-color:#3d72d4"/><stop offset="100%" style="stop-color:#1a4fa0"/></linearGradient><linearGradient id="capglow" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#888"/><stop offset="50%" style="stop-color:#d8d8d8"/><stop offset="100%" style="stop-color:#888"/></linearGradient></defs><rect x="30" y="3" width="30" height="13" rx="3" fill="url(#capglow)"/><rect x="32" y="2" width="26" height="5" rx="2" fill="#aaa"/><ellipse cx="45" cy="16" rx="15" ry="3.5" fill="#1a4fa0"/><rect x="24" y="16" width="42" height="96" rx="7" fill="url(#bgglow)"/><ellipse cx="45" cy="112" rx="21" ry="4" fill="#1a4fa0"/><rect x="27" y="46" width="36" height="58" rx="3" fill="white" fill-opacity="0.97" stroke="#dde" stroke-width="0.4"/><text x="45" y="57" text-anchor="middle" font-size="5.5" font-weight="700" fill="#2A7C6F" font-family="sans-serif">PEPTIDOS &amp;</text><text x="45" y="65" text-anchor="middle" font-size="6.5" font-weight="800" fill="#0B1C2E" font-family="sans-serif">BIOHACKING</text><text x="45" y="71" text-anchor="middle" font-size="3.8" fill="#777" font-family="sans-serif">Dr. Fernando Valenzuela</text><rect x="29" y="74" width="32" height="14" rx="2" fill="#2A7C6F"/><text x="45" y="84" text-anchor="middle" font-size="6.5" font-weight="800" fill="white" font-family="sans-serif">GLOW</text><rect x="31" y="91" width="28" height="7" rx="2" fill="#6a35a0"/><text x="45" y="97" text-anchor="middle" font-size="5" font-weight="700" fill="white" font-family="sans-serif">Protocol</text><ellipse cx="34" cy="30" rx="3" ry="5" fill="rgba(255,255,255,0.12)" transform="rotate(-15,34,30)"/></svg></div>
+        <img src="images/products/glow.jpg" class="pcard-photo" alt="GLOW Protocol">
         <span class="pcat-badge" data-es="Piel y Estética" data-en="Skin & Aesthetics">Piel y Estética</span>
         <span class="pmed-badge" data-es="Médico" data-en="Medical">Médico</span>
       </div>
@@ -565,7 +567,7 @@ footer{background:var(--navy);padding:40px 32px 24px}
         <div class="pname">GLOW Protocol</div>
         <div class="pcat" data-es="Piel y Estética" data-en="Skin & Aesthetics">Piel y Estética</div>
         <p class="pdesc" data-es="Protocolo combinado para rejuvenecimiento cutáneo. Mejora elasticidad, luminosidad y reduce signos visibles de envejecimiento." data-en="Combined protocol for skin rejuvenation. Improves elasticity, luminosity and reduces visible aging signs.">Protocolo combinado para rejuvenecimiento cutáneo. Mejora elasticidad, luminosidad y reduce signos visibles de envejecimiento.</p>
-        <div class="pspecs">Combinación · Inyectable · 6–8 semanas</div>
+        <div class="pspecs">70mg / vial · Inyectable · 6–8 semanas</div>
         <div class="ptags"><span class="ptag" data-es="Colágeno" data-en="Collagen">Colágeno</span><span class="ptag" data-es="Anti-edad" data-en="Anti-aging">Anti-edad</span><span class="ptag" data-es="Luminosidad" data-en="Luminosity">Luminosidad</span></div>
         <div class="pprice-row">
           <div>
@@ -579,7 +581,7 @@ footer{background:var(--navy);padding:40px 32px 24px}
     </div>
     <div class="pcard" data-cat="epitalon">
       <div class="pcard-img">
-        <div class="pcard-icon" style="width:100%;height:140px;background:rgba(42,124,111,0.04);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px"><svg viewBox="0 0 90 140" width="80" height="124" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bgepital" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#1a4fa0"/><stop offset="45%" style="stop-color:#2563c4"/><stop offset="70%" style="stop-color:#3d72d4"/><stop offset="100%" style="stop-color:#1a4fa0"/></linearGradient><linearGradient id="capepital" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#888"/><stop offset="50%" style="stop-color:#d8d8d8"/><stop offset="100%" style="stop-color:#888"/></linearGradient></defs><rect x="30" y="3" width="30" height="13" rx="3" fill="url(#capepital)"/><rect x="32" y="2" width="26" height="5" rx="2" fill="#aaa"/><ellipse cx="45" cy="16" rx="15" ry="3.5" fill="#1a4fa0"/><rect x="24" y="16" width="42" height="96" rx="7" fill="url(#bgepital)"/><ellipse cx="45" cy="112" rx="21" ry="4" fill="#1a4fa0"/><rect x="27" y="46" width="36" height="58" rx="3" fill="white" fill-opacity="0.97" stroke="#dde" stroke-width="0.4"/><text x="45" y="57" text-anchor="middle" font-size="5.5" font-weight="700" fill="#2A7C6F" font-family="sans-serif">PEPTIDOS &amp;</text><text x="45" y="65" text-anchor="middle" font-size="6.5" font-weight="800" fill="#0B1C2E" font-family="sans-serif">BIOHACKING</text><text x="45" y="71" text-anchor="middle" font-size="3.8" fill="#777" font-family="sans-serif">Dr. Fernando Valenzuela</text><rect x="29" y="74" width="32" height="14" rx="2" fill="#2A7C6F"/><text x="45" y="84" text-anchor="middle" font-size="6.5" font-weight="800" fill="white" font-family="sans-serif">Epitalon</text><rect x="31" y="91" width="28" height="7" rx="2" fill="#6a35a0"/><text x="45" y="97" text-anchor="middle" font-size="5" font-weight="700" fill="white" font-family="sans-serif">5 mg</text><ellipse cx="34" cy="30" rx="3" ry="5" fill="rgba(255,255,255,0.12)" transform="rotate(-15,34,30)"/></svg></div>
+        <img src="images/products/epitalon.jpg" class="pcard-photo" alt="Epitalon 10mg">
         <span class="pcat-badge" data-es="Longevidad" data-en="Longevity">Longevidad</span>
         <span class="pmed-badge" data-es="Médico" data-en="Medical">Médico</span>
       </div>
@@ -601,7 +603,7 @@ footer{background:var(--navy);padding:40px 32px 24px}
     </div>
     <div class="pcard" data-cat="semax">
       <div class="pcard-img">
-        <div class="pcard-icon" style="width:100%;height:140px;background:rgba(42,124,111,0.04);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px"><svg viewBox="0 0 90 140" width="80" height="124" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bgsemax" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#1a4fa0"/><stop offset="45%" style="stop-color:#2563c4"/><stop offset="70%" style="stop-color:#3d72d4"/><stop offset="100%" style="stop-color:#1a4fa0"/></linearGradient><linearGradient id="capsemax" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#888"/><stop offset="50%" style="stop-color:#d8d8d8"/><stop offset="100%" style="stop-color:#888"/></linearGradient></defs><rect x="30" y="3" width="30" height="13" rx="3" fill="url(#capsemax)"/><rect x="32" y="2" width="26" height="5" rx="2" fill="#aaa"/><ellipse cx="45" cy="16" rx="15" ry="3.5" fill="#1a4fa0"/><rect x="24" y="16" width="42" height="96" rx="7" fill="url(#bgsemax)"/><ellipse cx="45" cy="112" rx="21" ry="4" fill="#1a4fa0"/><rect x="27" y="46" width="36" height="58" rx="3" fill="white" fill-opacity="0.97" stroke="#dde" stroke-width="0.4"/><text x="45" y="57" text-anchor="middle" font-size="5.5" font-weight="700" fill="#2A7C6F" font-family="sans-serif">PEPTIDOS &amp;</text><text x="45" y="65" text-anchor="middle" font-size="6.5" font-weight="800" fill="#0B1C2E" font-family="sans-serif">BIOHACKING</text><text x="45" y="71" text-anchor="middle" font-size="3.8" fill="#777" font-family="sans-serif">Dr. Fernando Valenzuela</text><rect x="29" y="74" width="32" height="14" rx="2" fill="#2A7C6F"/><text x="45" y="84" text-anchor="middle" font-size="5.2" font-weight="800" fill="white" font-family="sans-serif">Semax/Selank</text><rect x="31" y="91" width="28" height="7" rx="2" fill="#6a35a0"/><text x="45" y="97" text-anchor="middle" font-size="5" font-weight="700" fill="white" font-family="sans-serif">Nasal</text><ellipse cx="34" cy="30" rx="3" ry="5" fill="rgba(255,255,255,0.12)" transform="rotate(-15,34,30)"/></svg></div>
+        <img src="images/products/semax.jpg" class="pcard-photo" alt="Semax / Selank">
         <span class="pcat-badge" data-es="Cognitivo" data-en="Cognitive">Cognitivo</span>
         <span class="pmed-badge" data-es="Médico" data-en="Medical">Médico</span>
       </div>
@@ -609,7 +611,7 @@ footer{background:var(--navy);padding:40px 32px 24px}
         <div class="pname">Semax / Selank</div>
         <div class="pcat" data-es="Cognitivo" data-en="Cognitive">Cognitivo</div>
         <p class="pdesc" data-es="Péptidos neuroprotectores de aplicación nasal. Mejoran memoria, enfoque, reducen ansiedad y optimizan función cerebral." data-en="Nasal neuroprotective peptides. Improve memory, focus, reduce anxiety and optimize brain function.">Péptidos neuroprotectores de aplicación nasal. Mejoran memoria, enfoque, reducen ansiedad y optimizan función cerebral.</p>
-        <div class="pspecs">0.1–0.15% / 3ml · Nasal · 4–8 semanas</div>
+        <div class="pspecs">10mg / vial · Inyectable · 4–8 semanas</div>
         <div class="ptags"><span class="ptag" data-es="Enfoque" data-en="Focus">Enfoque</span><span class="ptag" data-es="Memoria" data-en="Memory">Memoria</span><span class="ptag" data-es="Ansiedad" data-en="Anxiety">Ansiedad</span></div>
         <div class="pprice-row">
           <div>
@@ -623,7 +625,7 @@ footer{background:var(--navy);padding:40px 32px 24px}
     </div>
     <div class="pcard" data-cat="tesamorelin">
       <div class="pcard-img">
-        <div class="pcard-icon" style="width:100%;height:140px;background:rgba(42,124,111,0.04);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px"><svg viewBox="0 0 90 140" width="80" height="124" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bgtesamo" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#1a4fa0"/><stop offset="45%" style="stop-color:#2563c4"/><stop offset="70%" style="stop-color:#3d72d4"/><stop offset="100%" style="stop-color:#1a4fa0"/></linearGradient><linearGradient id="captesamo" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#888"/><stop offset="50%" style="stop-color:#d8d8d8"/><stop offset="100%" style="stop-color:#888"/></linearGradient></defs><rect x="30" y="3" width="30" height="13" rx="3" fill="url(#captesamo)"/><rect x="32" y="2" width="26" height="5" rx="2" fill="#aaa"/><ellipse cx="45" cy="16" rx="15" ry="3.5" fill="#1a4fa0"/><rect x="24" y="16" width="42" height="96" rx="7" fill="url(#bgtesamo)"/><ellipse cx="45" cy="112" rx="21" ry="4" fill="#1a4fa0"/><rect x="27" y="46" width="36" height="58" rx="3" fill="white" fill-opacity="0.97" stroke="#dde" stroke-width="0.4"/><text x="45" y="57" text-anchor="middle" font-size="5.5" font-weight="700" fill="#2A7C6F" font-family="sans-serif">PEPTIDOS &amp;</text><text x="45" y="65" text-anchor="middle" font-size="6.5" font-weight="800" fill="#0B1C2E" font-family="sans-serif">BIOHACKING</text><text x="45" y="71" text-anchor="middle" font-size="3.8" fill="#777" font-family="sans-serif">Dr. Fernando Valenzuela</text><rect x="29" y="74" width="32" height="14" rx="2" fill="#2A7C6F"/><text x="45" y="84" text-anchor="middle" font-size="5.2" font-weight="800" fill="white" font-family="sans-serif">Tesamorelin</text><rect x="31" y="91" width="28" height="7" rx="2" fill="#6a35a0"/><text x="45" y="97" text-anchor="middle" font-size="5" font-weight="700" fill="white" font-family="sans-serif">2 mg</text><ellipse cx="34" cy="30" rx="3" ry="5" fill="rgba(255,255,255,0.12)" transform="rotate(-15,34,30)"/></svg></div>
+        <img src="images/products/tesamorelin.jpg" class="pcard-photo" alt="Tesamorelin / Ipamorelin">
         <span class="pcat-badge" data-es="GH Avanzado" data-en="Advanced GH">GH Avanzado</span>
         <span class="pmed-badge" data-es="Médico" data-en="Medical">Médico</span>
       </div>
@@ -631,7 +633,7 @@ footer{background:var(--navy);padding:40px 32px 24px}
         <div class="pname">Tesamorelin / Ipamorelin</div>
         <div class="pcat" data-es="GH Avanzado" data-en="Advanced GH">GH Avanzado</div>
         <p class="pdesc" data-es="Protocolo avanzado para pérdida de grasa visceral y optimización de GH. Ideal para recomposición corporal en mayores de 40." data-en="Advanced protocol for visceral fat loss and GH optimization. Ideal for body recomposition in 40+.">Protocolo avanzado para pérdida de grasa visceral y optimización de GH. Ideal para recomposición corporal en mayores de 40.</p>
-        <div class="pspecs">2mg+5mg · Inyectable · 12–16 semanas</div>
+        <div class="pspecs">10mg+3mg · Inyectable · 12–16 semanas</div>
         <div class="ptags"><span class="ptag" data-es="Grasa visceral" data-en="Visceral fat">Grasa visceral</span><span class="ptag" data-es="Recomposición" data-en="Recomposition">Recomposición</span><span class="ptag" data-es="40+" data-en="40+">40+</span></div>
         <div class="pprice-row">
           <div>
@@ -645,7 +647,7 @@ footer{background:var(--navy);padding:40px 32px 24px}
     </div>
     <div class="pcard" data-cat="motsc">
       <div class="pcard-img">
-        <div class="pcard-icon" style="width:100%;height:140px;background:rgba(42,124,111,0.04);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px"><svg viewBox="0 0 90 140" width="80" height="124" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bgmotsc" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#1a4fa0"/><stop offset="45%" style="stop-color:#2563c4"/><stop offset="70%" style="stop-color:#3d72d4"/><stop offset="100%" style="stop-color:#1a4fa0"/></linearGradient><linearGradient id="capmotsc" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#888"/><stop offset="50%" style="stop-color:#d8d8d8"/><stop offset="100%" style="stop-color:#888"/></linearGradient></defs><rect x="30" y="3" width="30" height="13" rx="3" fill="url(#capmotsc)"/><rect x="32" y="2" width="26" height="5" rx="2" fill="#aaa"/><ellipse cx="45" cy="16" rx="15" ry="3.5" fill="#1a4fa0"/><rect x="24" y="16" width="42" height="96" rx="7" fill="url(#bgmotsc)"/><ellipse cx="45" cy="112" rx="21" ry="4" fill="#1a4fa0"/><rect x="27" y="46" width="36" height="58" rx="3" fill="white" fill-opacity="0.97" stroke="#dde" stroke-width="0.4"/><text x="45" y="57" text-anchor="middle" font-size="5.5" font-weight="700" fill="#2A7C6F" font-family="sans-serif">PEPTIDOS &amp;</text><text x="45" y="65" text-anchor="middle" font-size="6.5" font-weight="800" fill="#0B1C2E" font-family="sans-serif">BIOHACKING</text><text x="45" y="71" text-anchor="middle" font-size="3.8" fill="#777" font-family="sans-serif">Dr. Fernando Valenzuela</text><rect x="29" y="74" width="32" height="14" rx="2" fill="#2A7C6F"/><text x="45" y="84" text-anchor="middle" font-size="6.5" font-weight="800" fill="white" font-family="sans-serif">MOTS-C</text><rect x="31" y="91" width="28" height="7" rx="2" fill="#6a35a0"/><text x="45" y="97" text-anchor="middle" font-size="5" font-weight="700" fill="white" font-family="sans-serif">5 mg</text><ellipse cx="34" cy="30" rx="3" ry="5" fill="rgba(255,255,255,0.12)" transform="rotate(-15,34,30)"/></svg></div>
+        <img src="images/products/motsc.jpg" class="pcard-photo" alt="MOTS-C 10mg">
         <span class="pcat-badge" data-es="Longevidad Mitocondrial" data-en="Mitochondrial Longevity">Longevidad Mitocondrial</span>
         <span class="pmed-badge" data-es="Médico" data-en="Medical">Médico</span>
       </div>
@@ -653,7 +655,7 @@ footer{background:var(--navy);padding:40px 32px 24px}
         <div class="pname">MOTS-C</div>
         <div class="pcat" data-es="Longevidad Mitocondrial" data-en="Mitochondrial Longevity">Longevidad Mitocondrial</div>
         <p class="pdesc" data-es="Péptido mitocondrial que mejora sensibilidad a insulina y energía celular. Potencial anti-envejecimiento excepcional." data-en="Mitochondrial peptide improving insulin sensitivity and cellular energy. Exceptional anti-aging potential.">Péptido mitocondrial que mejora sensibilidad a insulina y energía celular. Potencial anti-envejecimiento excepcional.</p>
-        <div class="pspecs">5mg / vial · Inyectable · 8 semanas</div>
+        <div class="pspecs">10mg / vial · Inyectable · 8 semanas</div>
         <div class="ptags"><span class="ptag" data-es="Mitocondrias" data-en="Mitochondria">Mitocondrias</span><span class="ptag" data-es="Energía" data-en="Energy">Energía</span><span class="ptag" data-es="Anti-edad" data-en="Anti-aging">Anti-edad</span></div>
         <div class="pprice-row">
           <div>
@@ -667,7 +669,7 @@ footer{background:var(--navy);padding:40px 32px 24px}
     </div>
     <div class="pcard" data-cat="dsip">
       <div class="pcard-img">
-        <div class="pcard-icon" style="width:100%;height:140px;background:rgba(42,124,111,0.04);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px"><svg viewBox="0 0 90 140" width="80" height="124" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bgdsip" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#1a4fa0"/><stop offset="45%" style="stop-color:#2563c4"/><stop offset="70%" style="stop-color:#3d72d4"/><stop offset="100%" style="stop-color:#1a4fa0"/></linearGradient><linearGradient id="capdsip" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#888"/><stop offset="50%" style="stop-color:#d8d8d8"/><stop offset="100%" style="stop-color:#888"/></linearGradient></defs><rect x="30" y="3" width="30" height="13" rx="3" fill="url(#capdsip)"/><rect x="32" y="2" width="26" height="5" rx="2" fill="#aaa"/><ellipse cx="45" cy="16" rx="15" ry="3.5" fill="#1a4fa0"/><rect x="24" y="16" width="42" height="96" rx="7" fill="url(#bgdsip)"/><ellipse cx="45" cy="112" rx="21" ry="4" fill="#1a4fa0"/><rect x="27" y="46" width="36" height="58" rx="3" fill="white" fill-opacity="0.97" stroke="#dde" stroke-width="0.4"/><text x="45" y="57" text-anchor="middle" font-size="5.5" font-weight="700" fill="#2A7C6F" font-family="sans-serif">PEPTIDOS &amp;</text><text x="45" y="65" text-anchor="middle" font-size="6.5" font-weight="800" fill="#0B1C2E" font-family="sans-serif">BIOHACKING</text><text x="45" y="71" text-anchor="middle" font-size="3.8" fill="#777" font-family="sans-serif">Dr. Fernando Valenzuela</text><rect x="29" y="74" width="32" height="14" rx="2" fill="#2A7C6F"/><text x="45" y="84" text-anchor="middle" font-size="6.5" font-weight="800" fill="white" font-family="sans-serif">DSIP</text><rect x="31" y="91" width="28" height="7" rx="2" fill="#6a35a0"/><text x="45" y="97" text-anchor="middle" font-size="5" font-weight="700" fill="white" font-family="sans-serif">5 mg</text><ellipse cx="34" cy="30" rx="3" ry="5" fill="rgba(255,255,255,0.12)" transform="rotate(-15,34,30)"/></svg></div>
+        <img src="images/products/dsip.jpg" class="pcard-photo" alt="DSIP 5mg">
         <span class="pcat-badge" data-es="Sueño Profundo" data-en="Deep Sleep">Sueño Profundo</span>
         <span class="pmed-badge" data-es="Médico" data-en="Medical">Médico</span>
       </div>
@@ -689,7 +691,7 @@ footer{background:var(--navy);padding:40px 32px 24px}
     </div>
     <div class="pcard" data-cat="pt141">
       <div class="pcard-img">
-        <div class="pcard-icon" style="width:100%;height:140px;background:rgba(42,124,111,0.04);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px"><svg viewBox="0 0 90 140" width="80" height="124" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bgpt141" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#1a4fa0"/><stop offset="45%" style="stop-color:#2563c4"/><stop offset="70%" style="stop-color:#3d72d4"/><stop offset="100%" style="stop-color:#1a4fa0"/></linearGradient><linearGradient id="cappt141" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#888"/><stop offset="50%" style="stop-color:#d8d8d8"/><stop offset="100%" style="stop-color:#888"/></linearGradient></defs><rect x="30" y="3" width="30" height="13" rx="3" fill="url(#cappt141)"/><rect x="32" y="2" width="26" height="5" rx="2" fill="#aaa"/><ellipse cx="45" cy="16" rx="15" ry="3.5" fill="#1a4fa0"/><rect x="24" y="16" width="42" height="96" rx="7" fill="url(#bgpt141)"/><ellipse cx="45" cy="112" rx="21" ry="4" fill="#1a4fa0"/><rect x="27" y="46" width="36" height="58" rx="3" fill="white" fill-opacity="0.97" stroke="#dde" stroke-width="0.4"/><text x="45" y="57" text-anchor="middle" font-size="5.5" font-weight="700" fill="#2A7C6F" font-family="sans-serif">PEPTIDOS &amp;</text><text x="45" y="65" text-anchor="middle" font-size="6.5" font-weight="800" fill="#0B1C2E" font-family="sans-serif">BIOHACKING</text><text x="45" y="71" text-anchor="middle" font-size="3.8" fill="#777" font-family="sans-serif">Dr. Fernando Valenzuela</text><rect x="29" y="74" width="32" height="14" rx="2" fill="#2A7C6F"/><text x="45" y="84" text-anchor="middle" font-size="6.5" font-weight="800" fill="white" font-family="sans-serif">PT-141</text><rect x="31" y="91" width="28" height="7" rx="2" fill="#6a35a0"/><text x="45" y="97" text-anchor="middle" font-size="5" font-weight="700" fill="white" font-family="sans-serif">10 mg</text><ellipse cx="34" cy="30" rx="3" ry="5" fill="rgba(255,255,255,0.12)" transform="rotate(-15,34,30)"/></svg></div>
+        <img src="images/products/pt141.jpg" class="pcard-photo" alt="PT-141 10mg">
         <span class="pcat-badge" data-es="Bienestar Sexual" data-en="Sexual Wellness">Bienestar Sexual</span>
         <span class="pmed-badge" data-es="Médico" data-en="Medical">Médico</span>
       </div>
@@ -711,7 +713,7 @@ footer{background:var(--navy);padding:40px 32px 24px}
     </div>
     <div class="pcard" data-cat="agua">
       <div class="pcard-img">
-        <div class="pcard-icon" style="width:100%;height:140px;background:rgba(42,124,111,0.04);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:14px"><svg viewBox="0 0 90 140" width="80" height="124" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bgagua" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#1a4fa0"/><stop offset="45%" style="stop-color:#2563c4"/><stop offset="70%" style="stop-color:#3d72d4"/><stop offset="100%" style="stop-color:#1a4fa0"/></linearGradient><linearGradient id="capagua" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#888"/><stop offset="50%" style="stop-color:#d8d8d8"/><stop offset="100%" style="stop-color:#888"/></linearGradient></defs><rect x="30" y="3" width="30" height="13" rx="3" fill="url(#capagua)"/><rect x="32" y="2" width="26" height="5" rx="2" fill="#aaa"/><ellipse cx="45" cy="16" rx="15" ry="3.5" fill="#1a4fa0"/><rect x="24" y="16" width="42" height="96" rx="7" fill="url(#bgagua)"/><ellipse cx="45" cy="112" rx="21" ry="4" fill="#1a4fa0"/><rect x="27" y="46" width="36" height="58" rx="3" fill="white" fill-opacity="0.97" stroke="#dde" stroke-width="0.4"/><text x="45" y="57" text-anchor="middle" font-size="5.5" font-weight="700" fill="#2A7C6F" font-family="sans-serif">PEPTIDOS &amp;</text><text x="45" y="65" text-anchor="middle" font-size="6.5" font-weight="800" fill="#0B1C2E" font-family="sans-serif">BIOHACKING</text><text x="45" y="71" text-anchor="middle" font-size="3.8" fill="#777" font-family="sans-serif">Dr. Fernando Valenzuela</text><rect x="29" y="74" width="32" height="14" rx="2" fill="#2A7C6F"/><text x="45" y="84" text-anchor="middle" font-size="5.2" font-weight="800" fill="white" font-family="sans-serif">Agua Bact.</text><rect x="31" y="91" width="28" height="7" rx="2" fill="#6a35a0"/><text x="45" y="97" text-anchor="middle" font-size="5" font-weight="700" fill="white" font-family="sans-serif">10 ml</text><ellipse cx="34" cy="30" rx="3" ry="5" fill="rgba(255,255,255,0.12)" transform="rotate(-15,34,30)"/></svg></div>
+        <img src="images/products/agua.jpg" class="pcard-photo" alt="Agua Bacteriostatica">
         <span class="pcat-badge" data-es="Accesorios" data-en="Accessories">Accesorios</span>
         <span class="pmed-badge" data-es="Médico" data-en="Medical">Médico</span>
       </div>
