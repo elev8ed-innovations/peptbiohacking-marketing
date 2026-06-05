@@ -1329,6 +1329,7 @@ function renderConsult(){
   else if(cStep===5){
     // Build recommended protocols based on goals + symptoms
     const protocols=buildRecommendations(es);
+    if(!fData._submitted){fData._submitted=true; submitAssessment(protocols);}
     c.innerHTML=`
       <div class="c-result">
         <div class="c-result-title">${es?'Tu perfil y protocolos recomendados':'Your profile & recommended protocols'}</div>
@@ -1426,6 +1427,27 @@ function setAct(el,v){
 function s1save(){fData.name=document.getElementById('fn')?.value||'';fData.age=document.getElementById('fa')?.value||'';fData.wa=document.getElementById('fw')?.value||'';fData.email=document.getElementById('fe')?.value||'';fData.weight=document.getElementById('fw2')?.value||'';fData.height=document.getElementById('fh')?.value||'';fData.sex=document.getElementById('fs')?.value||'';fData.city=document.getElementById('fc')?.value||'';}
 function saveMeds(){fData.meds=document.getElementById('fmeds')?.value||'';}
 function saveLifestyle(){fData.sleep=document.getElementById('fsl')?.value||'';fData.stress=document.getElementById('fst')?.value||'';fData.prev=document.getElementById('fprev')?.value||'';}
+
+const SUPA_FN='https://myymemctdxwizhmwjbyk.supabase.co/functions/v1';
+const SUPA_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15eW1lbWN0ZHh3aXpobXdqYnlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NjQzNTAsImV4cCI6MjA5MzI0MDM1MH0.R27eSgHjuSfWxinhA_w3AbX1gb6L7Hk_eEqKx_1mUq8';
+async function submitAssessment(protocols){
+  try{
+    const payload={
+      name:fData.name||'', age:fData.age||'', whatsapp:fData.wa||'', email:fData.email||'',
+      weight:fData.weight||'', height:fData.height||'', sex:fData.sex||'', city:fData.city||'',
+      goals:fData.goals||[], symptoms:fData.symptoms||[], medications:fData.meds||'',
+      activity:fData.activity||'', sleep:fData.sleep||'', stress:fData.stress||'',
+      peptide_experience:fData.prev||'', suggested_protocol:fData.suggestedProtocol||'',
+      recommended:(protocols||[]).map(function(p){return {name:p.name,pid:p.pid,why:p.why};}),
+      lang:lang
+    };
+    await fetch(SUPA_FN+'/submit-assessment',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SUPA_ANON,'Authorization':'Bearer '+SUPA_ANON},
+      body:JSON.stringify(payload)
+    });
+  }catch(e){ console.warn('assessment submit failed',e); }
+}
 
 function buildWAMsg(es){
   const goals=(fData.goals||[]).join(', ');
