@@ -22,7 +22,7 @@ serve(async (req) => {
     const { data, error } = await sb
       .from("assessments")
       .insert({
-        name:                body.name || null,
+        full_name:           body.name || null,
         age:                 body.age || null,
         whatsapp:            body.wa || null,
         email:               body.email || null,
