@@ -30,28 +30,60 @@ const SITE = "https://peptbiohacking.com";
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   try {
-    const { sku, quantity = 1 } = await req.json();
-    const item = CATALOG[sku];
-    if (!item) {
-      return new Response(JSON.stringify({ error: "SKU desconocido" }), {
-        status: 400, headers: { ...CORS, "Content-Type": "application/json" },
-      });
-    }
-    if (item.price === 0) {
-      return new Response(JSON.stringify({ error: "Producto no disponible por el momento" }), {
-        status: 400, headers: { ...CORS, "Content-Type": "application/json" },
-      });
-    }
-    const qty = Math.max(1, Math.min(10, Number(quantity) || 1));
+    const body = await req.json();
+    // Support both single-item { sku, quantity } and multi-item { items: [...] }
+    let items: Array<{ sku: string; title: string; price: number; qty: number }> = [];
 
+    if (body.items && Array.isArray(body.items)) {
+      // Cart format
+      for (const entry of body.items) {
+        const sku = entry.sku;
+        const item = CATALOG[sku];
+        if (!item) {
+          return new Response(JSON.stringify({ error: `SKU desconocido: ${sku}` }), {
+            status: 400, headers: { ...CORS, "Content-Type": "application/json" },
+          });
+        }
+        if (item.price === 0) {
+          return new Response(JSON.stringify({ error: `${item.title} no disponible por el momento` }), {
+            status: 400, headers: { ...CORS, "Content-Type": "application/json" },
+          });
+        }
+        const qty = Math.max(1, Math.min(10, Number(entry.quantity) || 1));
+        items.push({ sku, title: item.title, price: item.price, qty });
+      }
+    } else if (body.sku) {
+      // Legacy single-item format
+      const item = CATALOG[body.sku];
+      if (!item) {
+        return new Response(JSON.stringify({ error: "SKU desconocido" }), {
+          status: 400, headers: { ...CORS, "Content-Type": "application/json" },
+        });
+      }
+      if (item.price === 0) {
+        return new Response(JSON.stringify({ error: "Producto no disponible por el momento" }), {
+          status: 400, headers: { ...CORS, "Content-Type": "application/json" },
+        });
+      }
+      const qty = Math.max(1, Math.min(10, Number(body.quantity) || 1));
+      items.push({ sku: body.sku, title: item.title, price: item.price, qty });
+    } else {
+      return new Response(JSON.stringify({ error: "Formato inválido" }), {
+        status: 400, headers: { ...CORS, "Content-Type": "application/json" },
+      });
+    }
+
+    const mpItems = items.map((i) => ({
+      id: i.sku,
+      title: i.title,
+      quantity: i.qty,
+      currency_id: "MXN",
+      unit_price: i.price,
+    }));
+
+    const skus = items.map((i) => i.sku).join("-");
     const pref = {
-      items: [{
-        id: sku,
-        title: item.title,
-        quantity: qty,
-        currency_id: "MXN",
-        unit_price: item.price,
-      }],
+      items: mpItems,
       back_urls: {
         success: `${SITE}/shop.html?status=success`,
         pending: `${SITE}/shop.html?status=pending`,
@@ -59,7 +91,7 @@ serve(async (req) => {
       },
       auto_return: "approved",
       statement_descriptor: "PEPTBIOHACKING",
-      external_reference: `${sku}-${Date.now()}`,
+      external_reference: `${skus}-${Date.now()}`,
     };
 
     const mpRes = await fetch("https://api.mercadopago.com/checkout/preferences", {
