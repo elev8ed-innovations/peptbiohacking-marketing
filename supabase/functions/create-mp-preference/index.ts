@@ -7,21 +7,22 @@ const CORS = {
 };
 
 // Server-side catalog — single source of truth for prices (MXN)
+// Official catalog prices (1 pieza)
 const CATALOG: Record<string, { title: string; price: number }> = {
-  "bpc-tb500":     { title: "BPC-157 / TB-500", price: 4500 },
-  "glp3-12":       { title: "GLP-3 12mg", price: 4900 },
-  "glp3-24":       { title: "GLP-3 24mg", price: 9800 },
-  "glp3-48":       { title: "GLP-3 48mg", price: 0 },          /* FILL LATER — Dr V */
-  "motsc-10":      { title: "MOTS-C 10mg", price: 4500 },
-  "tesa-ipa":      { title: "Tesamorelin / Ipamorelin", price: 5900 },
-  "dsip-10":       { title: "DSIP 5mg", price: 2500 },
-  "semax-10":      { title: "Semax / Selank", price: 2900 },
-  "glow-70":       { title: "GLOW Protocol 70mg", price: 5900 },
-  "bact-water-30": { title: "Agua Bacteriostática 30ml", price: 400 },
-  "bact-water-3":  { title: "Agua Bacteriostática 3ml", price: 0 }, /* FILL LATER — Dr V */
-  "cjc-1295":      { title: "CJC-1295 / Ipamorelin", price: 4500 },
-  "epitalon":      { title: "Epitalon 10mg", price: 4000 },
-  "pt141":         { title: "PT-141 10mg", price: 2900 },
+  "bpc-tb500":     { title: "BPC-157 / TB-500", price: 3700 },
+  "glp3-12":       { title: "GLP-3 12mg", price: 3900 },
+  "glp3-24":       { title: "GLP-3 24mg", price: 5400 },
+  "glp3-48":       { title: "GLP-3 48mg", price: 7400 },
+  "motsc-10":      { title: "MOTS-C 10mg", price: 3900 },
+  "tesa-ipa":      { title: "Tesamorelin / Ipamorelin", price: 4400 },
+  "dsip-10":       { title: "DSIP 10mg", price: 3700 },
+  "semax-10":      { title: "Semax / Selank", price: 3700 },
+  "glow-70":       { title: "GLOW Protocol 70mg", price: 4900 },
+  "bact-water-30": { title: "Agua Bacteriostática 30ml", price: 900 },
+  "bact-water-3":  { title: "Agua Bacteriostática 3ml", price: 300 },
+  "cjc-1295":      { title: "CJC-1295 / Ipamorelin", price: 3900 },
+  "epitalon":      { title: "Epitalon 10mg", price: 3400 },
+  "pt141":         { title: "PT-141 10mg", price: 3400 },
 };
 
 const SITE = "https://peptbiohacking.com";
