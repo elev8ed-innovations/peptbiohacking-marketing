@@ -1,0 +1,5 @@
+[functions.create-mp-preference]
+verify_jwt = false
+
+[functions.update-price]
+verify_jwt = false
