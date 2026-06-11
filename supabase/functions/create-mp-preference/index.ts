@@ -6,8 +6,6 @@ const CORS = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-// Server-side catalog — single source of truth for prices (MXN)
-// Official catalog prices (1 pieza)
 const CATALOG: Record<string, { title: string; price: number }> = {
   "bpc-tb500":     { title: "BPC-157 / TB-500", price: 3700 },
   "glp3-12":       { title: "GLP-3 12mg", price: 3900 },
@@ -26,16 +24,47 @@ const CATALOG: Record<string, { title: string; price: number }> = {
 };
 
 const SITE = "https://peptbiohacking.com";
+const AIRTABLE_BASE = "appoSOvq7flVkIase";
+const AIRTABLE_TABLE = "Shop%20Inventory";
+
+/** Fetch live stock from Airtable — returns { sku -> { stock, status } } */
+async function fetchInventory(): Promise<Record<string, { stock: number; status: string }>> {
+  const token = Deno.env.get("AIRTABLE_TOKEN");
+  if (!token) {
+    console.warn("AIRTABLE_TOKEN not set — skipping stock check");
+    return {};
+  }
+  const url = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}?pageSize=100`;
+  const resp = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!resp.ok) {
+    console.warn("Airtable fetch failed:", resp.status);
+    return {};
+  }
+  const data = await resp.json();
+  const inv: Record<string, { stock: number; status: string }> = {};
+  for (const rec of data.records || []) {
+    const f = rec.fields || {};
+    const sku = f.SKU;
+    if (sku) {
+      inv[sku] = {
+        stock: Number(f.Stock) || 0,
+        status: f.Status || "Out of Stock",
+      };
+    }
+  }
+  return inv;
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   try {
+    // 1. Parse body
     const body = await req.json();
-    // Support both single-item { sku, quantity } and multi-item { items: [...] }
     let items: Array<{ sku: string; title: string; price: number; qty: number }> = [];
 
     if (body.items && Array.isArray(body.items)) {
-      // Cart format
       for (const entry of body.items) {
         const sku = entry.sku;
         const item = CATALOG[sku];
@@ -53,7 +82,6 @@ serve(async (req) => {
         items.push({ sku, title: item.title, price: item.price, qty });
       }
     } else if (body.sku) {
-      // Legacy single-item format
       const item = CATALOG[body.sku];
       if (!item) {
         return new Response(JSON.stringify({ error: "SKU desconocido" }), {
@@ -73,6 +101,39 @@ serve(async (req) => {
       });
     }
 
+    // 2. Check stock against Airtable
+    const inventory = await fetchInventory();
+    for (const item of items) {
+      const inv = inventory[item.sku];
+      if (inv) {
+        // Hard block: out of stock or discontinued
+        if (inv.status === "Out of Stock" || inv.status === "Discontinued") {
+          return new Response(JSON.stringify({
+            error: `${item.title} está agotado. Por favor elimínalo de tu carrito.`,
+            sku: item.sku,
+            stock: 0,
+          }), {
+            status: 409, headers: { ...CORS, "Content-Type": "application/json" },
+          });
+        }
+        // Hard block: not enough stock for requested quantity
+        if (inv.stock < item.qty) {
+          return new Response(JSON.stringify({
+            error: `Solo tenemos ${inv.stock} unidades de ${item.title}. Reduce la cantidad o elimínalo.`,
+            sku: item.sku,
+            stock: inv.stock,
+          }), {
+            status: 409, headers: { ...CORS, "Content-Type": "application/json" },
+          });
+        }
+        // Soft warning: low stock — still allow checkout but log it
+        if (inv.status === "Low Stock") {
+          console.log(`⚠️ Low stock: ${item.sku} (${inv.stock} left) — allowing checkout`);
+        }
+      }
+    }
+
+    // 3. Create MP preference
     const mpItems = items.map((i) => ({
       id: i.sku,
       title: i.title,
