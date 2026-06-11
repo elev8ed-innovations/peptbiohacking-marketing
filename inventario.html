@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PepBiohacking — Panel de Inventario</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0F1B29; --navy2:#162537; --teal:#2A7C6F; --teal2:#349E8E;
+  --gold:#C8963E; --ice:#E8F0F2; --muted:#7B94A5; --cream:#F2EDE4;
+  --red:#DC4A5A; --amber:#D9A13B; --green:#3EAD7A;
+  --border:rgba(255,255,255,.08); --card:rgba(255,255,255,.04);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--navy);color:var(--ice);font-family:'Outfit',sans-serif;overflow-x:hidden}
+a{color:var(--teal);text-decoration:none}
+
+.gate{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--navy);text-align:center;padding:24px;transition:opacity .6s ease}
+.gate.hidden{opacity:0;pointer-events:none}
+.gate h1{font-size:clamp(22px,4vw,36px);font-weight:300;letter-spacing:.15em;color:var(--ice)}
+.gate h1 b{color:var(--gold);font-weight:700}
+.gate .sub{font-size:14px;color:var(--muted);margin:24px 0 18px;max-width:320px;line-height:1.5}
+.keyrow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.keyfield input{padding:12px 16px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--ice);font-size:14px;letter-spacing:.3em;text-align:center;outline:none;width:200px;transition:border-color .25s;font-family:'Outfit',sans-serif}
+.keyfield input:focus{border-color:var(--teal)}
+.enter-btn{padding:12px 24px;border-radius:8px;border:1px solid var(--teal);background:var(--teal);color:var(--ice);font-size:12px;font-weight:600;cursor:pointer;letter-spacing:.15em;transition:all .25s;font-family:'Outfit',sans-serif}
+.enter-btn:hover{background:var(--teal2);box-shadow:0 0 20px rgba(42,124,111,.4)}
+.deny{color:var(--red);font-size:12px;margin-top:12px;opacity:0;transition:opacity .3s}
+.gate.denied .deny{opacity:1}
+.gate.denied .keyfield input{border-color:var(--red);animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(6px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+
+.dash{display:none;padding:60px 5vw 40px;max-width:1200px;margin:0 auto}
+.dash.show{display:block;animation:fadeIn .7s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+.head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:32px}
+.head h2{font-size:clamp(20px,3vw,28px);font-weight:300;letter-spacing:.04em}
+.head h2 b{color:var(--gold);font-weight:700}
+.head .badge{font-size:10px;padding:4px 12px;border-radius:999px;background:rgba(42,124,111,.15);color:var(--teal);letter-spacing:.15em;text-transform:uppercase;border:1px solid rgba(42,124,111,.3)}
+
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:28px}
+.stat-card{padding:16px 18px;background:var(--card);border:1px solid var(--border);border-radius:10px;text-align:center}
+.stat-card .num{font-size:28px;font-weight:700;letter-spacing:.02em}
+.stat-card .lbl{font-size:10px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;margin-top:4px}
+.stat-card.green .num{color:var(--green)}
+.stat-card.amber .num{color:var(--amber)}
+.stat-card.red .num{color:var(--red)}
+
+.toolbar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.toolbar input{flex:1;min-width:200px;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:var(--ice);font-size:14px;outline:none;transition:border-color .25s;font-family:'Outfit',sans-serif}
+.toolbar input::placeholder{color:var(--muted)}
+.toolbar input:focus{border-color:var(--teal)}
+.filter-group{display:flex;gap:6px;flex-wrap:wrap}
+.filter-btn{padding:8px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer;transition:all .2s;font-family:'Outfit',sans-serif}
+.filter-btn.active,.filter-btn:hover{background:rgba(42,124,111,.15);border-color:var(--teal);color:var(--teal)}
+
+.last-updated{font-size:11px;color:var(--muted);margin-bottom:16px;text-align:right}
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:600px}
+thead th{text-align:left;padding:14px 14px;font-weight:600;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--navy2)}
+tbody tr{border-bottom:1px solid rgba(255,255,255,.03);transition:background .15s}
+tbody tr:hover{background:rgba(255,255,255,.03)}
+tbody tr.hidden{display:none}
+tbody td{padding:12px 14px;vertical-align:middle}
+td.sku{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)}
+td.name{font-weight:500}
+td.stock{font-weight:600;font-family:'JetBrains Mono',monospace}
+td.price{font-family:'JetBrains Mono',monospace;color:var(--muted)}
+.badge-stock{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:600;letter-spacing:.1em}
+.badge-stock.in{background:rgba(62,173,122,.15);color:var(--green)}
+.badge-stock.low{background:rgba(217,161,59,.15);color:var(--amber)}
+.badge-stock.out{background:rgba(220,74,90,.15);color:var(--red)}
+.badge-stock.disc{background:rgba(123,148,165,.15);color:var(--muted)}
+.bar-container{width:100%;max-width:80px;height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .5s ease}
+
+.footer{text-align:center;margin-top:40px;padding:20px 0;font-size:11px;color:var(--muted);border-top:1px solid var(--border)}
+.footer b{color:var(--gold)}
+@media(max-width:640px){.dash{padding:40px 4vw 30px}.head{flex-direction:column;align-items:flex-start}table{font-size:12px}thead th,tbody td{padding:10px 10px}}
+.loading{text-align:center;padding:60px 0;color:var(--muted)}
+.loading .spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <h1>Pep<b>Biohacking</b></h1>
+  <div class="sub">Panel de Inventario — Dr. Valenzuela</div>
+  <div class="keyrow">
+    <div class="keyfield"><input id="pw" type="password" placeholder="Código" autocomplete="off"></div>
+    <button class="enter-btn" id="enterBtn">Entrar</button>
+  </div>
+  <div class="deny" id="deny">Código incorrecto</div>
+</div>
+
+<main class="dash" id="dash">
+  <div class="head">
+    <div>
+      <h2><b>Inventario</b> en vivo</h2>
+      <div class="badge">Sync via Airtable · Excel</div>
+    </div>
+    <button class="enter-btn" onclick="loadInventory()">🔄 Actualizar</button>
+  </div>
+
+  <div class="summary" id="summaryRow"></div>
+
+  <div class="toolbar">
+    <input id="searchInput" placeholder="Buscar producto..." oninput="filterInventory()">
+    <div class="filter-group">
+      <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">Todos</button>
+      <button class="filter-btn" data-filter="In Stock" onclick="setFilter('In Stock',this)">🟢 En Stock</button>
+      <button class="filter-btn" data-filter="Low Stock" onclick="setFilter('Low Stock',this)">🟡 Bajo Stock</button>
+      <button class="filter-btn" data-filter="Out of Stock" onclick="setFilter('Out of Stock',this)">🔴 Agotado</button>
+    </div>
+  </div>
+
+  <div class="last-updated" id="lastUpdated"></div>
+  <div id="tableArea" class="table-wrap">
+    <div class="loading"><div class="spinner"></div>Cargando inventario...</div>
+  </div>
+
+  <div class="footer">
+    <b>PepBiohacking</b> · Panel de Inventario · Dr. Fernando Valenzuela — Hermosillo, Sonora
+  </div>
+</main>
+
+<script>
+const PASSWORD=PEPBIO2026; const API_URL="https://myymemctdxwizhmwjbyk.supabase.co/functions/v1/get-inventory";
+let inventoryData=[],currentFilter="all";
+
+const gw=document.getElementById('pw'),gate=document.getElementById('gate');
+function tryEnter(){
+  if(gw.value.trim().toUpperCase()===PASSWORD){
+    gate.classList.remove('denied');gate.classList.add('hidden');
+    document.getElementById('dash').classList.add('show');loadInventory();
+  }else{gate.classList.add('denied');gw.value='';setTimeout(()=>gate.classList.remove('denied'),1400);}
+}
+document.getElementById('enterBtn').addEventListener('click',tryEnter);
+gw.addEventListener('keydown',function(e){if(e.key==='Enter')tryEnter();});gw.focus();
+
+function loadInventory(){
+  var area=document.getElementById('tableArea');
+  area.innerHTML='<div class="loading"><div class="spinner"></div>Cargando inventario...</div>';
+  document.getElementById('lastUpdated').textContent='';
+  fetch(API_URL).then(function(r){return r.json();}).then(function(d){
+    if(d.error){area.innerHTML='<div style="padding:40px;text-align:center;color:var(--red)">Error: '+d.error+'</div>';return;}
+    inventoryData=d.inventory||[];
+    var s=d.summary;
+    document.getElementById('summaryRow').innerHTML=
+      '<div class="stat-card green"><div class="num">'+s.inStock+'</div><div class="lbl">En Stock</div></div>'+
+      '<div class="stat-card amber"><div class="num">'+s.lowStock+'</div><div class="lbl">Bajo Stock</div></div>'+
+      '<div class="stat-card red"><div class="num">'+s.outOfStock+'</div><div class="lbl">Agotados</div></div>'+
+      '<div class="stat-card"><div class="num">'+s.totalSKUs+'</div><div class="lbl">Total SKUs</div></div>'+
+      '<div class="stat-card green"><div class="num">'+s.totalUnits+'</div><div class="lbl">Unidades</div></div>';
+    document.getElementById('lastUpdated').textContent='Actualizado: '+new Date(d.updated).toLocaleString('es-MX');
+    renderTable();
+  }).catch(function(e){area.innerHTML='<div style="padding:40px;text-align:center;color:var(--red)">Error: '+e.message+'</div>';});
+}
+
+function renderTable(){
+  var area=document.getElementById('tableArea');
+  var html='<table><thead><tr><th>SKU</th><th>Producto</th><th>Stock</th><th>Estado</th><th>Barra</th><th>Precio</th></tr></thead><tbody>';
+  inventoryData.forEach(function(i){
+    var cls=i.status==='In Stock'?'in':i.status==='Low Stock'?'low':i.status==='Out of Stock'?'out':'disc';
+    var icon=i.status==='In Stock'?'🟢':i.status==='Low Stock'?'🟡':i.status==='Out of Stock'?'🔴':'⚫';
+    var barPct=Math.min(100,Math.round((i.stock/Math.max(i.stock,i.lowAlert*4))*100));
+    var barColor=i.status==='In Stock'?'#3EAD7A':i.status==='Low Stock'?'#D9A13B':'#DC4A5A';
+    var hide=currentFilter!=='all'&&i.status!==currentFilter?' hidden':'';
+    var price=i.price>0?'MXN $'+i.price.toLocaleString('es-MX'):'—';
+    html+='<tr class="'+hide+'" data-name="'+i.product.toLowerCase()+'"><td class="sku">'+i.sku+'</td><td class="name">'+i.product+'</td><td class="stock">'+i.stock+'</td><td><span class="badge-stock '+cls+'">'+icon+' '+i.status+'</span></td><td><div class="bar-container"><div class="bar-fill" style="width:'+barPct+'%;background:'+barColor+'"></div></div></td><td class="price">'+price+'</td></tr>';
+  });
+  html+='</tbody></table>';
+  area.innerHTML=html;filterInventory();
+}
+
+function setFilter(f,btn){currentFilter=f;document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});if(btn)btn.classList.add('active');renderTable();}
+function filterInventory(){
+  var q=document.getElementById('searchInput').value.toLowerCase().trim();
+  document.querySelectorAll('#tableArea tbody tr').forEach(function(row){
+    var name=row.getAttribute('data-name')||'';
+    var match=!q||name.indexOf(q)>-1;
+    var h=row.classList.contains('hidden');
+    row.style.display=(h||!match)?'none':'';
+  });
+}
+</script>
+</body>
+</html>
