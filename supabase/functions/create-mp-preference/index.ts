@@ -6,7 +6,10 @@ const CORS = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+// Fallback catalog for products with known prices.
+// Airtable prices override these when > 0 (so when Dr. V sets a price, it auto-works).
 const CATALOG: Record<string, { title: string; price: number }> = {
+  // Original 14 products
   "bpc-tb500":     { title: "BPC-157 / TB-500", price: 3700 },
   "glp3-12":       { title: "GLP-3 12mg", price: 3900 },
   "glp3-24":       { title: "GLP-3 24mg", price: 5400 },
@@ -21,17 +24,23 @@ const CATALOG: Record<string, { title: string; price: number }> = {
   "cjc-1295":      { title: "CJC-1295 / Ipamorelin", price: 3900 },
   "epitalon":      { title: "Epitalon 10mg", price: 3400 },
   "pt141":         { title: "PT-141 10mg", price: 3400 },
+  // New products (prices pending from Dr. V — set to 0, will use Airtable when available)
+  "ghk-cu-50":     { title: "GHK-Cu 50mg", price: 0 },
+  "nad-buffered":  { title: "NAD+ Buffered", price: 0 },
+  "bpc-tb500-10":  { title: "BPC-157/TB-500 10mg/10mg", price: 0 },
+  "kisspeptin-10": { title: "Kisspeptin 10mg", price: 0 },
+  "igf1-lr3-100":  { title: "IGF-1 LR3 100mg", price: 0 },
 };
 
 const SITE = "https://peptbiohacking.com";
 const AIRTABLE_BASE = "appoSOvq7flVkIase";
 const AIRTABLE_TABLE = "Shop%20Inventory";
 
-/** Fetch live stock from Airtable — returns { sku -> { stock, status } } */
-async function fetchInventory(): Promise<Record<string, { stock: number; status: string }>> {
+/** Fetch live stock AND prices from Airtable — returns { sku -> { stock, status, price } } */
+async function fetchInventory(): Promise<Record<string, { stock: number; status: string; price: number }>> {
   const token = Deno.env.get("AIRTABLE_TOKEN");
   if (!token) {
-    console.warn("AIRTABLE_TOKEN not set — skipping stock check");
+    console.warn("AIRTABLE_TOKEN not set — skipping Airtable fetch");
     return {};
   }
   const url = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}?pageSize=100`;
@@ -43,7 +52,7 @@ async function fetchInventory(): Promise<Record<string, { stock: number; status:
     return {};
   }
   const data = await resp.json();
-  const inv: Record<string, { stock: number; status: string }> = {};
+  const inv: Record<string, { stock: number; status: string; price: number }> = {};
   for (const rec of data.records || []) {
     const f = rec.fields || {};
     const sku = f.SKU;
@@ -51,62 +60,72 @@ async function fetchInventory(): Promise<Record<string, { stock: number; status:
       inv[sku] = {
         stock: Number(f.Stock) || 0,
         status: f.Status || "Out of Stock",
+        price: Number(f["Price MXN"]) || 0,
       };
     }
   }
   return inv;
 }
 
+/** Resolve effective price: Airtable price > 0 wins, otherwise fallback to CATALOG */
+function effectivePrice(sku: string, airtablePrice: number): number {
+  if (airtablePrice > 0) return airtablePrice;
+  const fallback = CATALOG[sku];
+  return fallback ? fallback.price : 0;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   try {
-    // 1. Parse body
     const body = await req.json();
     let items: Array<{ sku: string; title: string; price: number; qty: number }> = [];
 
     if (body.items && Array.isArray(body.items)) {
       for (const entry of body.items) {
         const sku = entry.sku;
-        const item = CATALOG[sku];
-        if (!item) {
+        const cat = CATALOG[sku];
+        if (!cat) {
           return new Response(JSON.stringify({ error: `SKU desconocido: ${sku}` }), {
             status: 400, headers: { ...CORS, "Content-Type": "application/json" },
           });
         }
-        if (item.price === 0) {
-          return new Response(JSON.stringify({ error: `${item.title} no disponible por el momento` }), {
-            status: 400, headers: { ...CORS, "Content-Type": "application/json" },
-          });
-        }
         const qty = Math.max(1, Math.min(10, Number(entry.quantity) || 1));
-        items.push({ sku, title: item.title, price: item.price, qty });
+        items.push({ sku, title: cat.title, price: cat.price, qty });
       }
     } else if (body.sku) {
-      const item = CATALOG[body.sku];
-      if (!item) {
+      const cat = CATALOG[body.sku];
+      if (!cat) {
         return new Response(JSON.stringify({ error: "SKU desconocido" }), {
           status: 400, headers: { ...CORS, "Content-Type": "application/json" },
         });
       }
-      if (item.price === 0) {
-        return new Response(JSON.stringify({ error: "Producto no disponible por el momento" }), {
-          status: 400, headers: { ...CORS, "Content-Type": "application/json" },
-        });
-      }
       const qty = Math.max(1, Math.min(10, Number(body.quantity) || 1));
-      items.push({ sku: body.sku, title: item.title, price: item.price, qty });
+      items.push({ sku: body.sku, title: cat.title, price: cat.price, qty });
     } else {
       return new Response(JSON.stringify({ error: "Formato inválido" }), {
         status: 400, headers: { ...CORS, "Content-Type": "application/json" },
       });
     }
 
-    // 2. Check stock against Airtable
+    // 2. Fetch live data from Airtable (stock + prices)
     const inventory = await fetchInventory();
+
+    // 3. Override prices from Airtable and check stock
     for (const item of items) {
       const inv = inventory[item.sku];
+      const airPrice = inv ? inv.price : 0;
+      item.price = effectivePrice(item.sku, airPrice);
+
+      if (item.price === 0) {
+        return new Response(JSON.stringify({
+          error: `${item.title} no tiene precio asignado. Consulta a Dr. Valenzuela para actualizarlo.`,
+          sku: item.sku,
+        }), {
+          status: 400, headers: { ...CORS, "Content-Type": "application/json" },
+        });
+      }
+
       if (inv) {
-        // Hard block: out of stock or discontinued
         if (inv.status === "Out of Stock" || inv.status === "Discontinued") {
           return new Response(JSON.stringify({
             error: `${item.title} está agotado. Por favor elimínalo de tu carrito.`,
@@ -116,7 +135,6 @@ serve(async (req) => {
             status: 409, headers: { ...CORS, "Content-Type": "application/json" },
           });
         }
-        // Hard block: not enough stock for requested quantity
         if (inv.stock < item.qty) {
           return new Response(JSON.stringify({
             error: `Solo tenemos ${inv.stock} unidades de ${item.title}. Reduce la cantidad o elimínalo.`,
@@ -126,14 +144,13 @@ serve(async (req) => {
             status: 409, headers: { ...CORS, "Content-Type": "application/json" },
           });
         }
-        // Soft warning: low stock — still allow checkout but log it
         if (inv.status === "Low Stock") {
           console.log(`⚠️ Low stock: ${item.sku} (${inv.stock} left) — allowing checkout`);
         }
       }
     }
 
-    // 3. Create MP preference
+    // 4. Create MP preference
     const mpItems = items.map((i) => ({
       id: i.sku,
       title: i.title,
