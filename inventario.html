@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>PepBiohacking — Panel de Inventario</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -18,6 +18,7 @@ html,body{height:100%}
 body{background:var(--navy);color:var(--ice);font-family:'Outfit',sans-serif;overflow-x:hidden}
 a{color:var(--teal);text-decoration:none}
 
+/* ── GATE ── */
 .gate{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--navy);text-align:center;padding:24px;transition:opacity .6s ease}
 .gate.hidden{opacity:0;pointer-events:none}
 .gate h1{font-size:clamp(22px,4vw,36px);font-weight:300;letter-spacing:.15em;color:var(--ice)}
@@ -28,11 +29,13 @@ a{color:var(--teal);text-decoration:none}
 .keyfield input:focus{border-color:var(--teal)}
 .enter-btn{padding:12px 24px;border-radius:8px;border:1px solid var(--teal);background:var(--teal);color:var(--ice);font-size:12px;font-weight:600;cursor:pointer;letter-spacing:.15em;transition:all .25s;font-family:'Outfit',sans-serif}
 .enter-btn:hover{background:var(--teal2);box-shadow:0 0 20px rgba(42,124,111,.4)}
+.enter-btn:disabled{opacity:.4;pointer-events:none}
 .deny{color:var(--red);font-size:12px;margin-top:12px;opacity:0;transition:opacity .3s}
 .gate.denied .deny{opacity:1}
 .gate.denied .keyfield input{border-color:var(--red);animation:shake .4s}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(6px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
 
+/* ── DASHBOARD ── */
 .dash{display:none;padding:60px 5vw 40px;max-width:1200px;margin:0 auto}
 .dash.show{display:block;animation:fadeIn .7s ease both}
 @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
@@ -41,8 +44,46 @@ a{color:var(--teal);text-decoration:none}
 .head h2{font-size:clamp(20px,3vw,28px);font-weight:300;letter-spacing:.04em}
 .head h2 b{color:var(--gold);font-weight:700}
 .head .badge{font-size:10px;padding:4px 12px;border-radius:999px;background:rgba(42,124,111,.15);color:var(--teal);letter-spacing:.15em;text-transform:uppercase;border:1px solid rgba(42,124,111,.3)}
+.head-actions{display:flex;gap:8px;flex-wrap:wrap}
 
-.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:28px}
+/* ── TOGGLE SECTIONS ── */
+.toggle-section{margin-bottom:16px;border:1px solid var(--border);border-radius:10px;background:var(--card);overflow:hidden}
+.toggle-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;user-select:none;transition:background .2s;gap:10px}
+.toggle-head:hover{background:rgba(255,255,255,.03)}
+.toggle-head .lbl{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+.toggle-head .lbl .ico{font-size:16px}
+.toggle-head .arrow{font-size:11px;color:var(--muted);transition:transform .3s}
+.toggle-head.open .arrow{transform:rotate(180deg)}
+.toggle-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.toggle-body.open{max-height:800px}
+.toggle-inner{padding:0 18px 18px}
+
+/* ── ADD PRODUCT FORM ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+@media(max-width:500px){.form-grid{grid-template-columns:1fr}}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-weight:500}
+.fg input{padding:10px 12px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--ice);font-size:13px;outline:none;transition:border-color .25s;font-family:'Outfit',sans-serif}
+.fg input:focus{border-color:var(--teal)}
+.fg input::placeholder{color:rgba(123,148,165,.4)}
+.form-actions{display:flex;gap:8px;margin-top:4px}
+.form-msg{font-size:12px;margin-top:8px;padding:10px 14px;border-radius:8px;display:none}
+.form-msg.ok{display:block;background:rgba(62,173,122,.1);border:1px solid rgba(62,173,122,.3);color:var(--green)}
+.form-msg.err{display:block;background:rgba(220,74,90,.1);border:1px solid rgba(220,74,90,.3);color:var(--red)}
+
+/* ── TICKET FORM ── */
+.ticket-form{display:flex;flex-direction:column;gap:10px}
+.ticket-form .fg textarea{padding:10px 12px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--ice);font-size:13px;outline:none;transition:border-color .25s;font-family:'Outfit',sans-serif;resize:vertical;min-height:60px}
+.ticket-form .fg textarea:focus{border-color:var(--teal)}
+.ticket-form .fg textarea::placeholder{color:rgba(123,148,165,.4)}
+.ticket-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:500px){.ticket-row{grid-template-columns:1fr}}
+.ticket-msg{font-size:12px;margin-top:4px;padding:10px 14px;border-radius:8px;display:none}
+.ticket-msg.ok{display:block;background:rgba(62,173,122,.1);border:1px solid rgba(62,173,122,.3);color:var(--green)}
+.ticket-msg.err{display:block;background:rgba(220,74,90,.1);border:1px solid rgba(220,74,90,.3);color:var(--red)}
+
+/* ── SUMMARY ── */
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:28px}
 .stat-card{padding:16px 18px;background:var(--card);border:1px solid var(--border);border-radius:10px;text-align:center}
 .stat-card .num{font-size:28px;font-weight:700;letter-spacing:.02em}
 .stat-card .lbl{font-size:10px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;margin-top:4px}
@@ -50,6 +91,7 @@ a{color:var(--teal);text-decoration:none}
 .stat-card.amber .num{color:var(--amber)}
 .stat-card.red .num{color:var(--red)}
 
+/* ── TOOLBAR ── */
 .toolbar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
 .toolbar input{flex:1;min-width:200px;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:var(--ice);font-size:14px;outline:none;transition:border-color .25s;font-family:'Outfit',sans-serif}
 .toolbar input::placeholder{color:var(--muted)}
@@ -58,44 +100,69 @@ a{color:var(--teal);text-decoration:none}
 .filter-btn{padding:8px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer;transition:all .2s;font-family:'Outfit',sans-serif}
 .filter-btn.active,.filter-btn:hover{background:rgba(42,124,111,.15);border-color:var(--teal);color:var(--teal)}
 
+/* ── TABLE (mobile friendly) ── */
 .last-updated{font-size:11px;color:var(--muted);margin-bottom:16px;text-align:right}
-.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;background:var(--card)}
-table{width:100%;border-collapse:collapse;font-size:13px;min-width:600px}
-thead th{text-align:left;padding:14px 14px;font-weight:600;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--navy2)}
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;background:var(--card);-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:500px}
+thead th{text-align:left;padding:12px 12px;font-weight:600;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--navy2);white-space:nowrap}
 tbody tr{border-bottom:1px solid rgba(255,255,255,.03);transition:background .15s}
 tbody tr:hover{background:rgba(255,255,255,.03)}
 tbody tr.hidden{display:none}
-tbody td{padding:12px 14px;vertical-align:middle}
-td.sku{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)}
-td.name{font-weight:500}
-td.stock{font-weight:600;font-family:'JetBrains Mono',monospace}
-td.price{font-family:'JetBrains Mono',monospace;color:var(--muted)}
-.badge-stock{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:600;letter-spacing:.1em}
+tbody td{padding:10px 12px;vertical-align:middle}
+td.sku{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)}
+td.name{font-weight:500;font-size:12px}
+td.stock{font-weight:600;font-family:'JetBrains Mono',monospace;font-size:12px}
+td.price{font-family:'JetBrains Mono',monospace;color:var(--muted);font-size:11px}
+.badge-stock{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;font-size:9px;font-weight:600;letter-spacing:.08em;white-space:nowrap}
 .badge-stock.in{background:rgba(62,173,122,.15);color:var(--green)}
 .badge-stock.low{background:rgba(217,161,59,.15);color:var(--amber)}
 .badge-stock.out{background:rgba(220,74,90,.15);color:var(--red)}
 .badge-stock.disc{background:rgba(123,148,165,.15);color:var(--muted)}
-.bar-container{width:100%;max-width:80px;height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.bar-container{width:100%;max-width:60px;height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
 .bar-fill{height:100%;border-radius:3px;transition:width .5s ease}
+@media(max-width:640px){
+  .dash{padding:40px 4vw 24px}
+  .head{flex-direction:column;align-items:flex-start}
+  table{font-size:11px;min-width:450px}
+  thead th,tbody td{padding:8px 8px}
+  .summary{grid-template-columns:repeat(3,1fr)}
+  td.sku{display:none}
+  td.price{font-size:10px}
+  .toggle-inner{padding:0 12px 14px}
+}
 
-.footer{text-align:center;margin-top:40px;padding:20px 0;font-size:11px;color:var(--muted);border-top:1px solid var(--border)}
-.notas{background:rgba(201,150,62,.06);border:1px solid rgba(201,150,62,.2);border-radius:10px;padding:16px 20px;margin-bottom:24px;display:none}
+/* ── OLD STYLES (reused) ── */
+.notas{background:rgba(201,150,62,.06);border:1px solid rgba(201,150,62,.2);border-radius:10px;padding:14px 18px;margin-bottom:20px;display:none}
 .notas.show{display:block;animation:fadeIn .5s ease both}
-.notas-head{font-size:13px;font-weight:600;color:var(--gold);display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.notas-head{font-size:13px;font-weight:600;color:var(--gold);display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .notas-icon{font-size:16px}
 .notas-body{font-size:12px;color:var(--ice);line-height:1.7}
-.notas-item{display:flex;align-items:center;gap:8px;padding:5px 0}
+.notas-item{display:flex;align-items:center;gap:8px;padding:4px 0}
 .notas-item .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 .notas-item .dot.red{background:var(--red)}
 .notas-item .dot.amber{background:var(--amber)}
 .notas-item .dot.teal{background:var(--teal)}
-.notas-item .label{color:var(--muted);font-size:11px}
+.notas-item .label{color:var(--muted);font-size:11px;margin-left:auto}
 .notas-empty{padding:8px 0;color:var(--muted);font-size:11px;font-style:italic}
+.footer{text-align:center;margin-top:40px;padding:20px 0;font-size:11px;color:var(--muted);border-top:1px solid var(--border)}
 .footer b{color:var(--gold)}
-@media(max-width:640px){.dash{padding:40px 4vw 30px}.head{flex-direction:column;align-items:flex-start}table{font-size:12px}thead th,tbody td{padding:10px 10px}}
 .loading{text-align:center;padding:60px 0;color:var(--muted)}
 .loading .spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── TICKETS LIST ── */
+.ticket-list{margin-top:10px;display:none}
+.ticket-list.show{display:block}
+.ticket-card{padding:10px 14px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;margin-bottom:8px}
+.ticket-card .t-title{font-size:13px;font-weight:500}
+.ticket-card .t-desc{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5}
+.ticket-card .t-meta{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+.ticket-card .t-meta span{font-size:9px;padding:2px 8px;border-radius:4px;background:rgba(255,255,255,.05);color:var(--muted)}
+.ticket-card .t-priority{font-size:9px;padding:2px 8px;border-radius:4px;font-weight:600}
+.ticket-card .t-priority.high{background:rgba(220,74,90,.15);color:var(--red)}
+.ticket-card .t-priority.normal{background:rgba(42,124,111,.15);color:var(--teal)}
+.ticket-card .t-priority.low{background:rgba(123,148,165,.15);color:var(--muted)}
+.ticket-empty{padding:20px 0;text-align:center;color:var(--muted);font-size:12px}
 </style>
 </head>
 <body>
@@ -116,7 +183,92 @@ td.price{font-family:'JetBrains Mono',monospace;color:var(--muted)}
       <h2><b>Inventario</b> en vivo</h2>
       <div class="badge">Sync via Airtable · Excel</div>
     </div>
-    <button class="enter-btn" onclick="loadInventory()">🔄 Actualizar</button>
+    <div class="head-actions">
+      <button class="enter-btn" onclick="loadInventory()">🔄 Actualizar</button>
+    </div>
+  </div>
+
+  <!-- ── ADD PRODUCT TOGGLE ── -->
+  <div class="toggle-section" id="addProductSection">
+    <div class="toggle-head" onclick="togglePanel('addProduct')">
+      <span class="lbl"><span class="ico">➕</span> Agregar producto</span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="toggle-body" id="addProductBody">
+      <div class="toggle-inner">
+        <div class="form-grid">
+          <div class="fg">
+            <label>SKU *</label>
+            <input id="newSku" placeholder="ej: bpc-157-10" oninput="clearFormMsg('add')">
+          </div>
+          <div class="fg">
+            <label>Producto *</label>
+            <input id="newName" placeholder="BPC-157 10mg" oninput="clearFormMsg('add')">
+          </div>
+          <div class="fg">
+            <label>Stock inicial</label>
+            <input id="newStock" type="number" min="0" placeholder="0">
+          </div>
+          <div class="fg">
+            <label>Precio MXN</label>
+            <input id="newPrice" type="number" min="0" step="100" placeholder="0">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="enter-btn" id="addBtn" onclick="addProduct()">➕ Agregar</button>
+        </div>
+        <div class="form-msg" id="addMsg"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FIX IT TICKET TOGGLE ── -->
+  <div class="toggle-section" id="ticketSection">
+    <div class="toggle-head" onclick="togglePanel('ticket')">
+      <span class="lbl"><span class="ico">🛠️</span> Reportar problema / Recomendar</span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="toggle-body" id="ticketBody">
+      <div class="toggle-inner">
+        <div class="ticket-form">
+          <div class="fg">
+            <label>Título *</label>
+            <input id="ticketTitle" placeholder="Ej: La galería de productos no carga en iPhone" oninput="clearFormMsg('ticket')">
+          </div>
+          <div class="fg">
+            <label>Descripción (opcional)</label>
+            <textarea id="ticketDesc" placeholder="Describe el problema o recomendación..."></textarea>
+          </div>
+          <div class="ticket-row">
+            <div class="fg">
+              <label>Prioridad</label>
+              <select id="ticketPriority" style="padding:10px 12px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--ice);font-size:13px;outline:none;font-family:'Outfit',sans-serif;width:100%">
+                <option value="Normal" style="background:#0F1B29;color:var(--ice)">🟢 Normal</option>
+                <option value="High" style="background:#0F1B29;color:var(--ice)">🔴 Alta</option>
+                <option value="Low" style="background:#0F1B29;color:var(--ice)">⚪ Baja</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Reporta</label>
+              <select id="ticketSubmitter" style="padding:10px 12px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--ice);font-size:13px;outline:none;font-family:'Outfit',sans-serif;width:100%">
+                <option value="Dr. V" style="background:#0F1B29;color:var(--ice)">👨‍⚕️ Dr. V</option>
+                <option value="Asistente" style="background:#0F1B29;color:var(--ice)">📋 Asistente</option>
+                <option value="Otro" style="background:#0F1B29;color:var(--ice)">👤 Otro</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="enter-btn" id="ticketBtn" onclick="submitTicket()">📨 Enviar reporte</button>
+          </div>
+          <div class="ticket-msg" id="ticketMsg"></div>
+        </div>
+        <!-- Open tickets list -->
+        <div class="ticket-list" id="ticketList">
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Reportes abiertos</div>
+          <div id="ticketsContainer"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="summary" id="summaryRow"></div>
@@ -150,19 +302,133 @@ td.price{font-family:'JetBrains Mono',monospace;color:var(--muted)}
 </main>
 
 <script>
-const PASSWORD="PEPBIO2026"; const API_URL="https://myymemctdxwizhmwjbyk.supabase.co/functions/v1/get-inventory";
+const PASSWORD="PEPBIO2026";
+const API_URL="https://myymemctdxwizhmwjbyk.supabase.co/functions/v1/get-inventory";
+const ADD_URL="https://myymemctdxwizhmwjbyk.supabase.co/functions/v1/add-product";
+const TICKET_URL="https://myymemctdxwizhmwjbyk.supabase.co/functions/v1/submit-ticket";
 let inventoryData=[],currentFilter="all";
 
 const gw=document.getElementById('pw'),gate=document.getElementById('gate');
 function tryEnter(){
   if(gw.value.trim().toUpperCase()===PASSWORD){
     gate.classList.remove('denied');gate.classList.add('hidden');
-    document.getElementById('dash').classList.add('show');loadInventory();
+    document.getElementById('dash').classList.add('show');loadInventory();loadTickets();
   }else{gate.classList.add('denied');gw.value='';setTimeout(()=>gate.classList.remove('denied'),1400);}
 }
 document.getElementById('enterBtn').addEventListener('click',tryEnter);
 gw.addEventListener('keydown',function(e){if(e.key==='Enter')tryEnter();});gw.focus();
 
+/* ── PANEL TOGGLES ── */
+function togglePanel(id){
+  var body=document.getElementById(id+'Body');
+  var head=body.previousElementSibling;
+  body.classList.toggle('open');
+  head.classList.toggle('open');
+}
+
+/* ── ADD PRODUCT ── */
+function clearFormMsg(type){
+  var el=document.getElementById(type+'Msg');
+  el.className=(type==='add'?'form-msg':'ticket-msg');
+  el.style.display='none';
+}
+function addProduct(){
+  var sku=document.getElementById('newSku').value.trim();
+  var name=document.getElementById('newName').value.trim();
+  var stock=document.getElementById('newStock').value;
+  var price=document.getElementById('newPrice').value;
+  var btn=document.getElementById('addBtn');
+  var msg=document.getElementById('addMsg');
+
+  if(!sku||!name){msg.className='form-msg err';msg.textContent='SKU y nombre son obligatorios';msg.style.display='block';return;}
+
+  btn.disabled=true;btn.textContent='Agregando...';
+  msg.className='form-msg';msg.style.display='none';
+
+  fetch(ADD_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({passcode:PASSWORD,sku:sku,product:name,stock:Number(stock)||0,price:Number(price)||0})
+  }).then(function(r){return r.json();}).then(function(d){
+    if(d.success){
+      msg.className='form-msg ok';msg.textContent='✅ '+d.message;msg.style.display='block';
+      document.getElementById('newSku').value='';document.getElementById('newName').value='';
+      document.getElementById('newStock').value='';document.getElementById('newPrice').value='';
+      loadInventory();
+    }else{
+      msg.className='form-msg err';msg.textContent='❌ '+d.error;msg.style.display='block';
+    }
+    btn.disabled=false;btn.textContent='➕ Agregar';
+  }).catch(function(e){
+    msg.className='form-msg err';msg.textContent='❌ Error de conexión: '+e.message;msg.style.display='block';
+    btn.disabled=false;btn.textContent='➕ Agregar';
+  });
+}
+
+/* ── TICKETS ── */
+function submitTicket(){
+  var title=document.getElementById('ticketTitle').value.trim();
+  var desc=document.getElementById('ticketDesc').value.trim();
+  var priority=document.getElementById('ticketPriority').value;
+  var submitter=document.getElementById('ticketSubmitter').value;
+  var btn=document.getElementById('ticketBtn');
+  var msg=document.getElementById('ticketMsg');
+
+  if(!title){msg.className='ticket-msg err';msg.textContent='❌ El título es obligatorio';msg.style.display='block';return;}
+
+  btn.disabled=true;btn.textContent='Enviando...';
+  msg.className='ticket-msg';msg.style.display='none';
+
+  fetch(TICKET_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({passcode:PASSWORD,title:title,description:desc,priority:priority,submitter:submitter})
+  }).then(function(r){return r.json();}).then(function(d){
+    if(d.success){
+      msg.className='ticket-msg ok';msg.textContent='✅ '+d.message;msg.style.display='block';
+      document.getElementById('ticketTitle').value='';document.getElementById('ticketDesc').value='';
+      loadTickets();
+    }else{
+      msg.className='ticket-msg err';msg.textContent='❌ '+d.error;msg.style.display='block';
+    }
+    btn.disabled=false;btn.textContent='📨 Enviar reporte';
+  }).catch(function(e){
+    msg.className='ticket-msg err';msg.textContent='❌ Error: '+e.message;msg.style.display='block';
+    btn.disabled=false;btn.textContent='📨 Enviar reporte';
+  });
+}
+
+function loadTickets(){
+  fetch(TICKET_URL).then(function(r){return r.json();}).then(function(d){
+    var list=document.getElementById('ticketList');
+    var container=document.getElementById('ticketsContainer');
+    var tickets=d.tickets||[];
+    if(tickets.length===0){
+      list.classList.remove('show');
+      return;
+    }
+    list.classList.add('show');
+    var html='';
+    tickets.forEach(function(t){
+      var pclass=t.priority==='High'?'high':t.priority==='Low'?'low':'normal';
+      var icon=t.priority==='High'?'🔴':t.priority==='Low'?'⚪':'🟢';
+      var created=t.created?new Date(t.created).toLocaleDateString('es-MX',{day:'numeric',month:'short'}):'';
+      html+='<div class="ticket-card">';
+      html+='  <div class="t-title">'+escapeHtml(t.title)+'</div>';
+      if(t.description)html+='  <div class="t-desc">'+escapeHtml(t.description)+'</div>';
+      html+='  <div class="t-meta">';
+      if(t.submitter)html+='    <span>👤 '+escapeHtml(t.submitter)+'</span>';
+      html+='    <span class="t-priority '+pclass+'">'+icon+' '+t.priority+'</span>';
+      html+='    <span>📅 '+created+'</span>';
+      html+='  </div></div>';
+    });
+    container.innerHTML=html;
+  }).catch(function(){});
+}
+
+function escapeHtml(s){var d=document.createElement('div');d.appendChild(document.createTextNode(s));return d.innerHTML;}
+
+/* ── INVENTORY (existing) ── */
 function loadInventory(){
   var area=document.getElementById('tableArea');
   area.innerHTML='<div class="loading"><div class="spinner"></div>Cargando inventario...</div>';
@@ -192,8 +458,8 @@ function renderTable(){
     var barPct=Math.min(100,Math.round((i.stock/Math.max(i.stock,i.lowAlert*4))*100));
     var barColor=i.status==='In Stock'?'#3EAD7A':i.status==='Low Stock'?'#D9A13B':'#DC4A5A';
     var hide=currentFilter!=='all'&&i.status!==currentFilter?' hidden':'';
-    var price=i.price>0?'MXN $'+i.price.toLocaleString('es-MX'):'—';
-    html+='<tr class="'+hide+'" data-name="'+i.product.toLowerCase()+'"><td class="sku">'+i.sku+'</td><td class="name">'+i.product+'</td><td class="stock">'+i.stock+'</td><td><span class="badge-stock '+cls+'">'+icon+' '+i.status+'</span></td><td><div class="bar-container"><div class="bar-fill" style="width:'+barPct+'%;background:'+barColor+'"></div></div></td><td class="price">'+price+'</td></tr>';
+    var price=i.price>0?'MXN $'+Number(i.price).toLocaleString('es-MX'):'—';
+    html+='<tr class="'+hide+'" data-name="'+i.product.toLowerCase()+'"><td class="sku">'+i.sku+'</td><td class="name">'+i.product+'</td><td class="stock">'+i.stock+'</td><td><span class="badge-stock '+cls+'">'+icon+' '+i.status+'</span></td><td><div class="bar-container"><div class="bar-fill" style="width:'+barPct+'%;background:'+barColor+'\"></div></div></td><td class="price">'+price+'</td></tr>';
   });
   html+='</tbody></table>';
   area.innerHTML=html;filterInventory();
@@ -209,21 +475,17 @@ function filterInventory(){
     row.style.display=(h||!match)?'none':'';
   });
 }
-
 function renderNotas(data){
   var section=document.getElementById('notasSection');
   var body=document.getElementById('notasBody');
   var items=[];
   data.forEach(function(i){
-    // Missing price on stocked items
     if((i.status==='In Stock'||i.status==='Low Stock')&&(!i.price||i.price<=0)){
       items.push({type:'price',text:i.product+' tiene stock ('+i.stock+') pero no tiene precio asignado',dot:'red',action:'Asignar precio'});
     }
-    // Low stock needing reorder
     if(i.status==='Low Stock'&&i.stock>0){
       items.push({type:'reorder',text:i.product+' — solo quedan '+i.stock+' unidades',dot:'amber',action:'Reordenar'});
     }
-    // Out of stock items that aren't discontinued
     if(i.status==='Out of Stock'&&i.stock===0){
       items.push({type:'restock',text:i.product+' — agotado, ¿reordenar o discontinuar?',dot:'red',action:'Decidir'});
     }
@@ -236,7 +498,7 @@ function renderNotas(data){
   section.classList.add('show');
   var html='';
   items.forEach(function(it){
-    html+='<div class="notas-item"><span class="dot '+it.dot+'"></span><span>'+it.text+'</span> <span class="label">→ '+it.action+'</span></div>';
+    html+='<div class="notas-item"><span class="dot '+it.dot+'\"></span><span>'+it.text+'</span> <span class="label">→ '+it.action+'</span></div>';
   });
   body.innerHTML=html;
 }
