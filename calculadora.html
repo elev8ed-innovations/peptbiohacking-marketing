@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PepBiohacking — Calculadora de Dosificación</title>
+<meta name="description" content="Calculadora de dosificación para péptidos — calcula unidades exactas en jeringa de insulina según concentración de tu vial." />
+<meta property="og:title" content="Calculadora de Dosificación — PepBiohacking">
+<meta property="og:description" content="Calcula la dosis exacta en jeringa de insulina según la concentración de tu vial.">
+<meta property="og:image" content="https://peptbiohacking.com/og-teal-com.png">
+<meta property="og:url" content="https://peptbiohacking.com/calculadora">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0F1B29; --navy2:#162537; --teal:#2A7C6F; --teal2:#349E8E;
+  --gold:#C8963E; --ice:#E8F0F2; --muted:#7B94A5; --cream:#F2EDE4;
+  --red:#DC4A5A; --amber:#D9A13B; --green:#3EAD7A;
+  --border:rgba(255,255,255,.08); --card:rgba(255,255,255,.04);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--navy);color:var(--ice);font-family:'Outfit',sans-serif;overflow-x:hidden}
+
+/* ── LANG TOGGLE ── */
+.lang-bar{position:fixed;top:16px;right:16px;z-index:200;display:flex;gap:4px}
+.lang-btn{padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--muted);font-size:11px;font-weight:500;cursor:pointer;transition:all .25s;font-family:'Outfit',sans-serif;letter-spacing:.06em}
+.lang-btn.active{background:var(--teal);color:var(--ice);border-color:var(--teal)}
+.lang-btn:hover:not(.active){background:rgba(255,255,255,.1)}
+
+/* ── ADVISORY GATE ── */
+.gate{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--navy);padding:24px;overflow-y:auto}
+.gate.hidden{opacity:0;pointer-events:none;transition:opacity .6s ease}
+.gate-box{max-width:520px;width:100%;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px 28px}
+.gate-box .warn-icon{width:56px;height:56px;border-radius:50%;background:rgba(220,74,90,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px}
+.gate-box h1{font-size:clamp(20px,3.5vw,26px);font-weight:300;text-align:center;letter-spacing:.02em;margin-bottom:6px}
+.gate-box h1 b{color:var(--amber);font-weight:700}
+.gate-box .sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:20px;line-height:1.5}
+.adv-items{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.adv-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;line-height:1.5;color:var(--muted);padding:10px 12px;background:rgba(255,255,255,.02);border-radius:8px;border:1px solid var(--border)}
+.adv-item .ico{font-size:16px;flex-shrink:0;margin-top:1px}
+.adv-item b{color:var(--ice);font-weight:500}
+.agree-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 0;cursor:pointer}
+.agree-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--teal);cursor:pointer;flex-shrink:0}
+.agree-row label{font-size:13px;color:var(--ice);cursor:pointer;line-height:1.4;user-select:none;flex:1;padding:8px 0}
+.enter-btn{display:block;width:100%;padding:14px;border-radius:10px;border:1px solid var(--teal);background:var(--teal);color:var(--ice);font-size:13px;font-weight:600;cursor:pointer;letter-spacing:.12em;transition:all .25s;font-family:'Outfit',sans-serif;text-transform:uppercase}
+.enter-btn:hover:not(:disabled){background:var(--teal2);box-shadow:0 0 20px rgba(42,124,111,.4)}
+.enter-btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+.enter-btn:active:not(:disabled){transform:scale(.97)}
+.gate-footer{font-size:11px;color:var(--muted);text-align:center;margin-top:16px;line-height:1.5}
+
+/* ── CALCULATOR ── */
+.container{max-width:720px;margin:0 auto;padding:40px 5vw 60px;display:none}
+.container.show{display:block;animation:fadeIn .7s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+h1{font-size:clamp(22px,4vw,32px);font-weight:300;letter-spacing:.04em;margin-bottom:4px}
+h1 b{color:var(--gold);font-weight:700}
+.sub{color:var(--muted);font-size:13px;margin-bottom:28px;line-height:1.5}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
+.card h2{font-size:14px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:16px}
+label{display:block;font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;font-weight:500;margin-bottom:4px}
+input,select{width:100%;padding:12px 14px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--ice);font-size:15px;outline:none;transition:border-color .25s,box-shadow .25s;font-family:'Outfit',sans-serif;appearance:none;-webkit-appearance:none}
+input:focus,select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(42,124,111,.15)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237B94A5' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.input-group{margin-bottom:14px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:500px){.row{grid-template-columns:1fr}}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.result-item{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.result-item .value{font-size:clamp(20px,3vw,28px);font-weight:700;font-family:'JetBrains Mono',monospace}
+.result-item .value.teal{color:var(--teal)}
+.result-item .value.gold{color:var(--gold)}
+.result-item .value.green{color:var(--green)}
+.result-item .value.amber{color:var(--amber)}
+.result-item .lbl{font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.08em}
+.result-highlight{background:rgba(42,124,111,.1);border:1px solid rgba(42,124,111,.3);border-radius:10px;padding:18px;text-align:center;margin-top:12px}
+.result-highlight .value{font-size:clamp(28px,5vw,42px);font-weight:700;color:var(--teal2);font-family:'JetBrains Mono',monospace}
+.result-highlight .lbl{font-size:12px;color:var(--teal);margin-top:2px;letter-spacing:.05em}
+.tip{background:rgba(200,150,62,.08);border:1px solid rgba(200,150,62,.2);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--amber);line-height:1.5;margin-top:12px}
+.tip b{color:var(--gold)}
+.ref-table{width:100%;border-collapse:collapse;font-size:13px}
+.ref-table th{padding:10px 8px;text-align:left;font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-weight:600;border-bottom:1px solid var(--border)}
+.ref-table td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top}
+.ref-table tr:hover td{background:rgba(255,255,255,.02)}
+.ref-table .pep-name{font-weight:500;color:var(--ice)}
+.ref-table .pep-dose{color:var(--teal);font-family:'JetBrains Mono',monospace}
+.ref-table .pep-note{color:var(--muted);font-size:12px;line-height:1.4}
+.footer{text-align:center;padding:20px 0;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:32px}
+.footer b{color:var(--teal)}
+.syringe-viz{display:flex;align-items:center;gap:10px;margin-top:10px;padding:0 4px}
+.syringe-body{flex:1;height:16px;background:rgba(255,255,255,.06);border-radius:8px;position:relative;overflow:hidden;border:1px solid var(--border)}
+.syringe-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--teal2));border-radius:8px;transition:width .6s ease}
+.syringe-label{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;white-space:nowrap;min-width:40px;text-align:right}
+@media(max-width:500px){.result-grid{grid-template-columns:1fr}}
+.btn-row{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.btn-row .enter-btn{flex:1;min-width:100px}
+@media print{body{background:white !important;color:#333}.gate{display:none !important}.container{display:block !important}.card{border:1px solid #ddd;background:#fafafa}.lang-bar{display:none !important}}
+</style>
+</head>
+<body>
+
+<!-- ── LANGUAGE TOGGLE ── -->
+<div class="lang-bar">
+  <button class="lang-btn active" id="langEs" onclick="setLang('es')">ES</button>
+  <button class="lang-btn" id="langEn" onclick="setLang('en')">EN</button>
+</div>
+
+<!-- ── ADVISORY GATE ── -->
+<div class="gate" id="gate">
+  <div class="gate-box">
+    <div class="warn-icon">⚠️</div>
+    <h1><b id="gateTitle">Aviso importante</b></h1>
+    <div class="sub" id="gateSub">Esta calculadora es una herramienta educativa de referencia. No constituye consejo médico.</div>
+    <div class="adv-items">
+      <div class="adv-item">
+        <span class="ico">🔬</span>
+        <span id="adv1">Los resultados son <b>estimaciones matemáticas</b> basadas en tus datos. La dosificación real depende de tu peso, condición médica, y protocolo del médico tratante.</span>
+      </div>
+      <div class="adv-item">
+        <span class="ico">⚕️</span>
+        <span id="adv2">Esta herramienta es solo para pacientes bajo supervisión del <b>Dr. Fernando Valenzuela</b>. No auto-mediques.</span>
+      </div>
+      <div class="adv-item">
+        <span class="ico">📋</span>
+        <span id="adv3">Siempre verifica la dosis con tu médico antes de administrar. El uso incorrecto de péptidos puede causar efectos adversos.</span>
+      </div>
+    </div>
+    <div class="agree-row">
+      <input type="checkbox" id="agreeCheck" onchange="updateEnter()">
+      <label for="agreeCheck" id="agreeLabel">Entiendo que esta es una herramienta educativa y consultaré con mi médico antes de usar cualquier dosificación calculada aquí.</label>
+    </div>
+    <button class="enter-btn" id="enterBtn" disabled onclick="enterCalculator()"><span id="enterBtnLabel">Entrar a la calculadora</span></button>
+    <div class="gate-footer" id="gateFooter">PepBiohacking · Dr. Fernando Valenzuela — Hermosillo, Sonora</div>
+  </div>
+</div>
+
+<!-- ── CALCULATOR ── -->
+<div class="container" id="dash">
+
+  <h1><b id="calcTitle">Péptidos</b><span id="calcTitleR"> · Dosificación</span></h1>
+  <div class="sub" id="calcSub">Calcula la dosis exacta en jeringa de insulina según la concentración de tu vial. Resultados en unidades (UI).</div>
+
+  <div class="card">
+    <h2 id="vialHeader">🔬 Tu vial</h2>
+    <div class="row">
+      <div class="input-group">
+        <label id="vialLabel">Potencia del vial</label>
+        <select id="vialMg" onchange="calc()">
+          <option value="2">2 mg</option>
+          <option value="5">5 mg</option>
+          <option value="10" selected>10 mg</option>
+          <option value="12">12 mg</option>
+          <option value="15">15 mg</option>
+          <option value="20">20 mg</option>
+          <option value="24">24 mg</option>
+          <option value="25">25 mg</option>
+          <option value="30">30 mg</option>
+          <option value="48">48 mg</option>
+          <option value="50">50 mg</option>
+          <option value="100">100 mg</option>
+          <option value="other" id="vialOther">Otro...</option>
+        </select>
+      </div>
+      <div class="input-group" id="customMgGroup" style="display:none">
+        <label id="customMgLabel">Potencia (mg)</label>
+        <input id="customMg" type="number" min="0.1" step="0.1" placeholder="Ej: 12" oninput="calc()">
+      </div>
+      <div class="input-group">
+        <label id="bacLabel">Agua bacteriostática (ml)</label>
+        <select id="bacMl" onchange="calc()">
+          <option value="1">1 ml</option>
+          <option value="2" selected>2 ml</option>
+          <option value="3">3 ml</option>
+          <option value="5">5 ml</option>
+          <option value="10">10 ml</option>
+          <option value="otherBac" id="bacOther">Otro...</option>
+        </select>
+      </div>
+      <div class="input-group" id="customBacGroup" style="display:none">
+        <label id="customBacLabel">Volumen BAC (ml)</label>
+        <input id="customBac" type="number" min="0.1" step="0.1" placeholder="Ej: 2.5" oninput="calc()">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 id="doseHeader">💉 Tu dosis</h2>
+    <div class="row">
+      <div class="input-group">
+        <label id="doseLabel">Dosis deseada (mcg)</label>
+        <input id="doseMcg" type="number" min="1" step="1" value="250" oninput="calc()">
+      </div>
+      <div class="input-group">
+        <label id="commonLabel">O selecciona una dosis común</label>
+        <select id="commonDose" onchange="setCommonDose()">
+          <option value="" id="commonOpt0">— Personalizada —</option>
+          <option value="50" id="commonOpt1">50 mcg — Microdosis / Preliminar</option>
+          <option value="100" id="commonOpt2">100 mcg — Dosis baja</option>
+          <option value="250" id="commonOpt3" selected>250 mcg — Dosis estándar</option>
+          <option value="500" id="commonOpt4">500 mcg — Dosis moderada</option>
+          <option value="1000" id="commonOpt5">1000 mcg (1 mg) — Dosis alta</option>
+          <option value="2000" id="commonOpt6">2000 mcg (2 mg) — Dosis muy alta</option>
+          <option value="5000" id="commonOpt7">5000 mcg (5 mg) — Carga</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="results">
+    <h2 id="resultHeader">📊 Resultado</h2>
+    <div class="result-highlight">
+      <div class="value" id="resultUnits">—</div>
+      <div class="lbl" id="unitsLabel">Unidades en jeringa de insulina (UI)</div>
+    </div>
+    <div class="syringe-viz">
+      <span class="syringe-label">0</span>
+      <div class="syringe-body">
+        <div class="syringe-fill" id="syringeFill" style="width:10%"></div>
+      </div>
+      <span class="syringe-label" id="syringeEnd">100</span>
+    </div>
+    <div class="result-grid" style="margin-top:14px">
+      <div class="result-item">
+        <div class="value teal" id="resConc">—</div>
+        <div class="lbl" id="resConcLbl">Concentración (mg/ml)</div>
+      </div>
+      <div class="result-item">
+        <div class="value gold" id="resMcgMl">—</div>
+        <div class="lbl" id="resMcgMlLbl">Concentración (mcg/ml)</div>
+      </div>
+      <div class="result-item">
+        <div class="value green" id="resVol">—</div>
+        <div class="lbl" id="resVolLbl">Volumen a extraer (ml)</div>
+      </div>
+      <div class="result-item">
+        <div class="value amber" id="resMcgUnit">—</div>
+        <div class="lbl" id="resMcgUnitLbl">mcg por unidad (UI)</div>
+      </div>
+    </div>
+    <div class="tip" id="doseTip">
+      💡 <b id="tipNote">Nota:</b> <span id="tipText">1 ml = 100 unidades en jeringa de insulina estándar.</span>
+    </div>
+  </div>
+
+  <div class="card" id="reference">
+    <h2 id="refHeader">📋 Tabla de dosis de referencia</h2>
+    <table class="ref-table">
+      <thead>
+        <tr>
+          <th id="thPeptide">Péptido</th>
+          <th id="thDose">Dosis típica</th>
+          <th id="thFreq">Frecuencia</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="pep-name">BPC-157 / TB-500 blend 5mg/5mg</td><td class="pep-dose">250–500 mcg</td><td class="pep-note">1× / día</td></tr>
+        <tr><td class="pep-name">BPC-157 / TB-500 blend 10mg/10mg</td><td class="pep-dose">500–1000 mcg</td><td class="pep-note">1× / día</td></tr>
+        <tr><td class="pep-name">GLOW blend (BPC-157 10mg + TB-500 10mg + GHK-Cu 50mg)</td><td class="pep-dose">10 UI ×2 sem, luego 20 UI</td><td class="pep-note">Diluir en 2ml BAC</td></tr>
+        <tr><td class="pep-name">CJC-1295 / Ipamorelin</td><td class="pep-dose">200–300 mcg (total blend)</td><td class="pep-note">1× / día</td></tr>
+        <tr><td class="pep-name">MOTS-C</td><td class="pep-dose">5–10 mg</td><td class="pep-note">1× / día, 5 días</td></tr>
+        <tr><td class="pep-name">NAD+ (subcutáneo)</td><td class="pep-dose">25–50 mg</td><td class="pep-note">1× / día o cada otro</td></tr>
+        <tr><td class="pep-name">GLP-3 (12 mg)</td><td class="pep-dose">200–600 mcg</td><td class="pep-note">1× / día</td></tr>
+        <tr><td class="pep-name">Retatrutide</td><td class="pep-dose">Dosis variables según vial (12/24/48 mg)</td><td class="pep-note">1× / semana</td></tr>
+        <tr><td class="pep-name">DSIP</td><td class="pep-dose">100–200 mcg</td><td class="pep-note">1× / día, antes de dormir</td></tr>
+        <tr><td class="pep-name">Epitalon</td><td class="pep-dose">2.5–5 mg</td><td class="pep-note">1× / día, 10–20 días</td></tr>
+        <tr><td class="pep-name">PT-141</td><td class="pep-dose">500–1500 mcg</td><td class="pep-note" id="freqAsNeeded">Según necesidad</td></tr>
+        <tr><td class="pep-name">Kisspeptin</td><td class="pep-dose">100–300 mcg</td><td class="pep-note">3 días / semana</td></tr>
+        <tr><td class="pep-name">Selank</td><td class="pep-dose">200–400 mcg</td><td class="pep-note">1–2× / día</td></tr>
+        <tr><td class="pep-name">IGF-1 LR3</td><td class="pep-dose">20–80 mcg</td><td class="pep-note">1× / día post-entreno</td></tr>
+      </tbody>
+    </table>
+    <div class="tip" style="margin-top:14px">
+      ⚠️ <b id="refWarningTitle">Importante:</b> <span id="refWarningText">Estas son referencias generales. Siempre consulta con un profesional de la salud antes de comenzar cualquier protocolo.</span>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="enter-btn" onclick="window.print()">🖨️ <span id="printLabel">Imprimir</span></button>
+    <button class="enter-btn" onclick="shareUrl(event)">🔗 <span id="shareLabel">Compartir</span></button>
+    <button class="enter-btn" onclick="resetCalc()">↺ <span id="resetLabel">Reiniciar</span></button>
+  </div>
+
+  <div class="footer" id="footerText">
+    <b>PepBiohacking</b> · Calculadora de Dosificación · Dr. Fernando Valenzuela — Hermosillo, Sonora
+  </div>
+</div>
+
+<script>
+var LANG = 'es';
+
+var T = {
+  es: {
+    gateTitle: 'Aviso importante',
+    gateSub: 'Esta calculadora es una herramienta educativa de referencia. No constituye consejo médico.',
+    adv1: 'Los resultados son <b>estimaciones matemáticas</b> basadas en tus datos. La dosificación real depende de tu peso, condición médica, y protocolo del médico tratante.',
+    adv2: 'Esta herramienta es solo para pacientes bajo supervisión del <b>Dr. Fernando Valenzuela</b>. No auto-mediques.',
+    adv3: 'Siempre verifica la dosis con tu médico antes de administrar. El uso incorrecto de péptidos puede causar efectos adversos.',
+    agreeLabel: 'Entiendo que esta es una herramienta educativa y consultaré con mi médico antes de usar cualquier dosificación calculada aquí.',
+    enterBtnLabel: 'Entrar a la calculadora',
+    gateFooter: 'PepBiohacking · Dr. Fernando Valenzuela — Hermosillo, Sonora',
+    calcTitleB: 'Péptidos',
+    calcTitleR: ' · Dosificación',
+    calcSub: 'Calcula la dosis exacta en jeringa de insulina según la concentración de tu vial. Resultados en unidades (UI).',
+    vialHeader: '🔬 Tu vial',
+    vialLabel: 'Potencia del vial',
+    vialOther: 'Otro...',
+    customMgLabel: 'Potencia (mg)',
+    bacLabel: 'Agua bacteriostática (ml)',
+    bacOther: 'Otro...',
+    customBacLabel: 'Volumen BAC (ml)',
+    doseHeader: '💉 Tu dosis',
+    doseLabel: 'Dosis deseada (mcg)',
+    commonLabel: 'O selecciona una dosis común',
+    commonOpt0: '— Personalizada —',
+    commonOpt1: '50 mcg — Microdosis / Preliminar',
+    commonOpt2: '100 mcg — Dosis baja',
+    commonOpt3: '250 mcg — Dosis estándar',
+    commonOpt4: '500 mcg — Dosis moderada',
+    commonOpt5: '1000 mcg (1 mg) — Dosis alta',
+    commonOpt6: '2000 mcg (2 mg) — Dosis muy alta',
+    commonOpt7: '5000 mcg (5 mg) — Carga',
+    resultHeader: '📊 Resultado',
+    unitsLabel: 'Unidades en jeringa de insulina (UI)',
+    resConcLbl: 'Concentración (mg/ml)',
+    resMcgMlLbl: 'Concentración (mcg/ml)',
+    resVolLbl: 'Volumen a extraer (ml)',
+    resMcgUnitLbl: 'mcg por unidad (UI)',
+    tipNote: 'Nota:',
+    tipText: '1 ml = 100 unidades en jeringa de insulina estándar.',
+    tipSmall: 'menos de 5 UI. Considera diluir con menos BAC o usar una jeringa de 0.3 ml (30 unidades) para mayor precisión.',
+    tipLarge: 'más de 80 UI. Considera usar dos puntos de inyección o aumentar la concentración.',
+    tipGood: 'La dosis cae en un rango cómodo para una jeringa de insulina estándar de 100 UI.',
+    refHeader: '📋 Tabla de dosis de referencia',
+    thPeptide: 'Péptido',
+    thDose: 'Dosis típica',
+    thFreq: 'Frecuencia',
+    freqAsNeeded: 'Según necesidad',
+    refWarningTitle: 'Importante:',
+    refWarningText: 'Estas son referencias generales. Siempre consulta con un profesional de la salud antes de comenzar cualquier protocolo.',
+    printLabel: 'Imprimir',
+    shareLabel: 'Compartir',
+    resetLabel: 'Reiniciar',
+    footerText: 'PepBiohacking · Calculadora de Dosificación · Dr. Fernando Valenzuela — Hermosillo, Sonora',
+    tipVerySmall: 'Dosis muy pequeña:',
+    tipVeryLarge: 'Volumen alto:',
+    tipAdequate: 'Volumen adecuado.'
+  },
+  en: {
+    gateTitle: 'Important Notice',
+    gateSub: 'This calculator is an educational reference tool. It does not constitute medical advice.',
+    adv1: 'Results are <b>mathematical estimates</b> based on your inputs. Actual dosing depends on your weight, medical condition, and treating physician\'s protocol.',
+    adv2: 'This tool is only for patients under supervision of <b>Dr. Fernando Valenzuela</b>. Do not self-medicate.',
+    adv3: 'Always verify your dose with your doctor before administering. Incorrect use of peptides may cause adverse effects.',
+    agreeLabel: 'I understand this is an educational tool and will consult my doctor before using any dosage calculated here.',
+    enterBtnLabel: 'Enter calculator',
+    gateFooter: 'PepBiohacking · Dr. Fernando Valenzuela — Hermosillo, Sonora',
+    calcTitleB: 'Peptide',
+    calcTitleR: ' · Dosing Calculator',
+    calcSub: 'Calculate the exact dose on an insulin syringe based on your vial concentration. Results shown in units (IU).',
+    vialHeader: '🔬 Your vial',
+    vialLabel: 'Vial strength',
+    vialOther: 'Other...',
+    customMgLabel: 'Strength (mg)',
+    bacLabel: 'Bacteriostatic water (ml)',
+    bacOther: 'Other...',
+    customBacLabel: 'BAC volume (ml)',
+    doseHeader: '💉 Your dose',
+    doseLabel: 'Desired dose (mcg)',
+    commonLabel: 'Or pick a common dose',
+    commonOpt0: '— Custom —',
+    commonOpt1: '50 mcg — Microdose / Starter',
+    commonOpt2: '100 mcg — Low dose',
+    commonOpt3: '250 mcg — Standard dose',
+    commonOpt4: '500 mcg — Moderate dose',
+    commonOpt5: '1000 mcg (1 mg) — High dose',
+    commonOpt6: '2000 mcg (2 mg) — Very high dose',
+    commonOpt7: '5000 mcg (5 mg) — Loading dose',
+    resultHeader: '📊 Result',
+    unitsLabel: 'Units on insulin syringe (IU)',
+    resConcLbl: 'Concentration (mg/ml)',
+    resMcgMlLbl: 'Concentration (mcg/ml)',
+    resVolLbl: 'Volume to draw (ml)',
+    resMcgUnitLbl: 'mcg per unit (IU)',
+    tipNote: 'Note:',
+    tipText: '1 ml = 100 units on a standard insulin syringe.',
+    tipSmall: 'less than 5 IU. Consider using less BAC or a 0.3 ml (30 unit) syringe for accuracy.',
+    tipLarge: 'over 80 IU. Consider splitting into two injection sites or using a higher concentration.',
+    tipGood: 'Your dose is in a comfortable range for a standard 100 IU insulin syringe.',
+    refHeader: '📋 Reference dosing table',
+    thPeptide: 'Peptide',
+    thDose: 'Typical dose',
+    thFreq: 'Frequency',
+    freqAsNeeded: 'As needed',
+    refWarningTitle: 'Important:',
+    refWarningText: 'These are general references. Always consult a healthcare professional before starting any protocol.',
+    printLabel: 'Print',
+    shareLabel: 'Share',
+    resetLabel: 'Reset',
+    footerText: 'PepBiohacking · Dosing Calculator · Dr. Fernando Valenzuela — Hermosillo, Sonora',
+    tipVerySmall: 'Very small dose:',
+    tipVeryLarge: 'High volume:',
+    tipAdequate: 'Good volume.'
+  }
+};
+
+function setLang(l){
+  LANG = l;
+  var t = T[l];
+  document.getElementById('langEs').className = l === 'es' ? 'lang-btn active' : 'lang-btn';
+  document.getElementById('langEn').className = l === 'en' ? 'lang-btn active' : 'lang-btn';
+  document.documentElement.lang = l;
+  if(l === 'en') document.title = 'PepBiohacking — Peptide Dosing Calculator';
+  else document.title = 'PepBiohacking — Calculadora de Dosificación';
+
+  // Gate
+  byId('gateTitle').innerHTML = t.gateTitle;
+  byId('gateSub').innerHTML = t.gateSub;
+  byId('adv1').innerHTML = t.adv1;
+  byId('adv2').innerHTML = t.adv2;
+  byId('adv3').innerHTML = t.adv3;
+  byId('agreeLabel').innerHTML = t.agreeLabel;
+  byId('enterBtnLabel').innerHTML = t.enterBtnLabel;
+  byId('gateFooter').innerHTML = t.gateFooter;
+
+  // Calculator
+  byId('calcTitle').innerHTML = t.calcTitleB;
+  byId('calcTitleR').innerHTML = t.calcTitleR;
+  byId('calcSub').innerHTML = t.calcSub;
+  byId('vialHeader').innerHTML = t.vialHeader;
+  byId('vialLabel').innerHTML = t.vialLabel;
+  byId('vialOther').innerHTML = t.vialOther;
+  byId('customMgLabel').innerHTML = t.customMgLabel;
+  byId('bacLabel').innerHTML = t.bacLabel;
+  byId('bacOther').innerHTML = t.bacOther;
+  byId('customBacLabel').innerHTML = t.customBacLabel;
+  byId('doseHeader').innerHTML = t.doseHeader;
+  byId('doseLabel').innerHTML = t.doseLabel;
+  byId('commonLabel').innerHTML = t.commonLabel;
+  byId('commonOpt0').innerHTML = t.commonOpt0;
+  byId('commonOpt1').innerHTML = t.commonOpt1;
+  byId('commonOpt2').innerHTML = t.commonOpt2;
+  byId('commonOpt3').innerHTML = t.commonOpt3;
+  byId('commonOpt4').innerHTML = t.commonOpt4;
+  byId('commonOpt5').innerHTML = t.commonOpt5;
+  byId('commonOpt6').innerHTML = t.commonOpt6;
+  byId('commonOpt7').innerHTML = t.commonOpt7;
+  byId('resultHeader').innerHTML = t.resultHeader;
+  byId('unitsLabel').innerHTML = t.unitsLabel;
+  byId('resConcLbl').innerHTML = t.resConcLbl;
+  byId('resMcgMlLbl').innerHTML = t.resMcgMlLbl;
+  byId('resVolLbl').innerHTML = t.resVolLbl;
+  byId('resMcgUnitLbl').innerHTML = t.resMcgUnitLbl;
+  byId('tipNote').innerHTML = t.tipNote;
+  byId('tipText').innerHTML = t.tipText;
+  byId('refHeader').innerHTML = t.refHeader;
+  byId('thPeptide').innerHTML = t.thPeptide;
+  byId('thDose').innerHTML = t.thDose;
+  byId('thFreq').innerHTML = t.thFreq;
+  byId('freqAsNeeded').innerHTML = t.freqAsNeeded;
+  byId('refWarningTitle').innerHTML = t.refWarningTitle;
+  byId('refWarningText').innerHTML = t.refWarningText;
+  byId('printLabel').innerHTML = t.printLabel;
+  byId('shareLabel').innerHTML = t.shareLabel;
+  byId('resetLabel').innerHTML = t.resetLabel;
+  byId('footerText').innerHTML = t.footerText;
+
+  // Re-render dose tip with current language
+  calc();
+}
+
+function byId(id){return document.getElementById(id);}
+
+/* ── GATE ── */
+function updateEnter(){
+  document.getElementById('enterBtn').disabled=!document.getElementById('agreeCheck').checked;
+}
+function enterCalculator(){
+  document.getElementById('gate').classList.add('hidden');
+  document.getElementById('dash').classList.add('show');
+  calc();
+}
+document.getElementById('agreeCheck').addEventListener('keydown',function(e){
+  if(e.key==='Enter'){e.preventDefault();if(this.checked)enterCalculator();}
+});
+
+/* ── CALCULATOR ── */
+function getVialMg(){
+  var sel=document.getElementById('vialMg');
+  if(sel.value==='other'){
+    document.getElementById('customMgGroup').style.display='block';
+    return parseFloat(document.getElementById('customMg').value)||0;
+  }
+  document.getElementById('customMgGroup').style.display='none';
+  return parseFloat(sel.value);
+}
+function getBacMl(){
+  var sel=document.getElementById('bacMl');
+  if(sel.value==='otherBac'){
+    document.getElementById('customBacGroup').style.display='block';
+    return parseFloat(document.getElementById('customBac').value)||0;
+  }
+  document.getElementById('customBacGroup').style.display='none';
+  return parseFloat(sel.value);
+}
+function setCommonDose(){
+  var sel=document.getElementById('commonDose');
+  if(sel.value){
+    document.getElementById('doseMcg').value=sel.value;
+    calc();
+  }
+}
+function calc(){
+  var t = T[LANG];
+  var mg=getVialMg();
+  var ml=getBacMl();
+  var doseMcg=parseFloat(document.getElementById('doseMcg').value)||0;
+  if(!mg||!ml||!doseMcg){
+    document.getElementById('resultUnits').textContent='—';
+    document.getElementById('resultConcentration').textContent='—';
+    document.getElementById('resultMcgPerMl').textContent='—';
+    document.getElementById('resultVolume').textContent='—';
+    document.getElementById('resultMcgPerUnit').textContent='—';
+    document.getElementById('syringeFill').style.width='0%';
+    document.getElementById('syringeEnd').textContent='100';
+    return;
+  }
+  var concMgPerMl=mg/ml;
+  var concMcgPerMl=concMgPerMl*1000;
+  var volumeMl=doseMcg/concMcgPerMl;
+  var units=Math.round(volumeMl*100);
+  var mcgPerUnit=concMcgPerMl/100;
+  document.getElementById('resultUnits').textContent=units+' UI';
+  document.getElementById('resultConcentration').textContent=concMgPerMl.toFixed(2)+' mg/ml';
+  document.getElementById('resultMcgPerMl').textContent=Math.round(concMcgPerMl).toLocaleString()+' mcg/ml';
+  document.getElementById('resultVolume').textContent=volumeMl.toFixed(3)+' ml';
+  document.getElementById('resultMcgPerUnit').textContent=mcgPerUnit.toFixed(1)+' mcg';
+  var fillPct=Math.min(100,Math.round((units/100)*100));
+  document.getElementById('syringeFill').style.width=fillPct+'%';
+  document.getElementById('syringeEnd').textContent=units+' / 100';
+  var tip=document.getElementById('doseTip');
+  if(units<5){
+    tip.innerHTML='⚠️ <b>'+t.tipVerySmall+'</b> '+t.tipSmall;
+  }else if(units>80){
+    tip.innerHTML='⚠️ <b>'+t.tipVeryLarge+'</b> '+t.tipLarge;
+  }else{
+    tip.innerHTML='✅ <b>'+t.tipAdequate+'</b> '+t.tipGood;
+  }
+}
+function resetCalc(){
+  document.getElementById('vialMg').value='10';
+  document.getElementById('bacMl').value='2';
+  document.getElementById('doseMcg').value='250';
+  document.getElementById('commonDose').value='250';
+  document.getElementById('customMgGroup').style.display='none';
+  document.getElementById('customBacGroup').style.display='none';
+  document.getElementById('customMg').value='';
+  document.getElementById('customBac').value='';
+  calc();
+}
+function shareUrl(e){
+  var mg=getVialMg();
+  var ml=getBacMl();
+  var dose=document.getElementById('doseMcg').value;
+  var params='?mg='+mg+'&bac='+ml+'&dose='+dose;
+  var url=window.location.origin+window.location.pathname+params;
+  navigator.clipboard.writeText(url).catch(function(){});
+  var btn=e.currentTarget;
+  var orig=btn.textContent;
+  btn.textContent='✅ ' + T[LANG].shareLabel;
+  setTimeout(function(){btn.textContent=orig;},2000);
+}
+window.addEventListener('DOMContentLoaded',function(){
+  var p=new URLSearchParams(window.location.search);
+  if(p.get('mg')){document.getElementById('vialMg').value=p.get('mg');if(p.get('mg')==='other'){document.getElementById('customMgGroup').style.display='block';document.getElementById('customMg').value=p.get('customMg')||'';}}
+  if(p.get('bac')){document.getElementById('bacMl').value=p.get('bac');if(p.get('bac')==='otherBac'){document.getElementById('customBacGroup').style.display='block';document.getElementById('customBac').value=p.get('customBac')||'';}}
+  if(p.get('dose')){document.getElementById('doseMcg').value=p.get('dose');}
+});
+</script>
+</body>
+</html>
