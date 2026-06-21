@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — PeptBiohacking</title>
+<meta name="description" content="Completa tu pedido con informacion de envio." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0B1C2E;--teal:#2A7C6F;--teal2:#1d5c52;--gold:#B8925A;
+  --white:#FFFFFF;--offwhite:#F5F4F0;--light:#EEEDE8;--muted:#7A8A8A;
+  --border:rgba(11,28,46,0.09);--text:#1A2A2A;--red:#C0392B;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Outfit',sans-serif;background:var(--offwhite);
+  color:var(--text);font-size:15px;line-height:1.6;
+}
+h1,h2,h3{font-family:'Cormorant Garamond',serif;line-height:1.15}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:'Outfit',sans-serif}
+input,select,textarea{font-family:'Outfit',sans-serif}
+
+/* ── NAV ── */
+nav{
+  background:var(--navy);padding:14px 32px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.nav-brand{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--white);font-weight:400}
+.nav-brand em{font-style:italic;color:var(--teal)}
+.nav-back{font-size:12px;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:5px;transition:color .2s}
+.nav-back:hover{color:var(--white)}
+
+/* ── LAYOUT ── */
+.checkout-wrap{max-width:900px;margin:0 auto;padding:32px 5vw 64px;}
+@media(min-width:768px){
+  .checkout-wrap{display:grid;grid-template-columns:1fr 360px;gap:28px;align-items:start}
+}
+.section-title{
+  font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--teal);margin-bottom:12px;
+}
+
+/* ── CARDS ── */
+.card{background:var(--white);border-radius:12px;border:1px solid var(--border);overflow:hidden;margin-bottom:20px}
+.card-body{padding:22px}
+.card-header{
+  padding:16px 22px;border-bottom:1px solid var(--light);
+  font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--navy);
+}
+
+/* ── FORM ── */
+.form-group{margin-bottom:14px}
+.form-group label{
+  display:block;font-size:10px;color:var(--muted);
+  letter-spacing:1px;text-transform:uppercase;font-weight:600;margin-bottom:4px;
+}
+.form-group input,.form-group select{
+  width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;
+  font-size:14px;color:var(--text);background:var(--white);
+  transition:border-color .2s;outline:none;
+}
+.form-group input:focus,.form-group select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(42,124,111,0.1)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:500px){.form-row{grid-template-columns:1fr}}
+
+/* ── ORDER SUMMARY ── */
+.order-item{
+  display:flex;align-items:center;gap:14px;
+  padding:12px 0;border-bottom:1px solid var(--light);
+}
+.order-item:last-child{border-bottom:none}
+.order-item .name{font-size:14px;font-weight:600;color:var(--navy)}
+.order-item .qty{font-size:11px;color:var(--muted)}
+.order-item .price{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--navy);margin-left:auto;flex-shrink:nowrap}
+
+/* ── UPSELL ── */
+.upsell{
+  border:2px solid var(--border);border-radius:10px;padding:14px 16px;
+  cursor:pointer;transition:all .2s;background:rgba(42,124,111,0.03);
+}
+.upsell.selected{border-color:var(--teal);background:rgba(42,124,111,0.06)}
+.upsell-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.upsell-check{
+  width:20px;height:20px;border-radius:50%;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:11px;
+  flex-shrink:0;margin-top:2px;background:var(--white);
+}
+.upsell.selected .upsell-check{background:var(--teal);border-color:var(--teal);color:var(--white)}
+.upsell-title{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:3px}
+.upsell-desc{font-size:11px;color:var(--muted);line-height:1.55;font-weight:300}
+.upsell-price{font-size:13px;font-weight:700;color:var(--teal);white-space:nowrap}
+
+/* ── TOTAL ── */
+.total-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 0;border-top:1px solid var(--border);margin-bottom:16px;
+}
+.total-label{font-size:13px;color:var(--muted)}
+.total-price{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--navy)}
+
+/* ── CTA ── */
+.cta-btn{
+  width:100%;padding:15px;background:var(--teal);color:var(--white);
+  border:none;border-radius:8px;font-family:'Outfit',sans-serif;
+  font-size:14px;font-weight:700;letter-spacing:.5px;
+  cursor:pointer;transition:all .25s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.cta-btn:hover{background:var(--teal2);transform:translateY(-1px);box-shadow:0 8px 20px rgba(42,124,111,0.2)}
+.cta-btn:disabled{background:var(--border);color:var(--muted);cursor:default;pointer-events:none}
+.secure-badge{font-size:10px;color:var(--muted);text-align:center;margin-top:10px}
+
+/* ── THANK YOU ── */
+#thankyou{display:none}
+#thankyou.show{display:block;animation:fadeIn .6s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.thankyou-card{text-align:center;padding:48px 24px 32px}
+.thankyou-card .check-circle{
+  width:72px;height:72px;border-radius:50%;
+  background:rgba(42,124,111,0.1);border:2px solid var(--teal);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 20px;
+}
+.thankyou-card h2{
+  font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:var(--navy);margin-bottom:6px;
+}
+.thankyou-card h2 em{color:var(--teal);font-style:italic}
+.thankyou-card .sub{
+  font-size:14px;color:var(--muted);line-height:1.7;
+  max-width:380px;margin:0 auto 20px;
+}
+.thankyou-card .tracking-note{
+  background:var(--offwhite);border:1px solid var(--border);
+  border-radius:10px;padding:14px 18px;display:inline-block;
+  font-size:12px;color:var(--text);line-height:1.7;margin-bottom:18px;
+}
+.thankyou-card .tracking-note strong{color:var(--teal)}
+.thankyou-card .divider{width:40px;height:1px;background:var(--border);margin:14px auto}
+.consult-cta{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 20px;background:var(--navy);color:var(--white);
+  border:none;border-radius:8px;font-family:'Outfit',sans-serif;
+  font-size:12px;font-weight:600;cursor:pointer;transition:all .25s;
+}
+.consult-cta:hover{background:#122438}
+
+/* ── LOADING ── */
+.loading-overlay{
+  display:none;position:fixed;inset:0;z-index:9999;
+  background:rgba(11,28,46,0.6);backdrop-filter:blur(3px);
+  align-items:center;justify-content:center;
+}
+.loading-overlay.show{display:flex}
+.loading-box{
+  background:var(--white);border-radius:14px;padding:36px 40px;text-align:center;
+  box-shadow:0 40px 80px rgba(0,0,0,0.25);
+}
+.spinner{width:40px;height:40px;border:3px solid var(--light);border-top-color:var(--teal);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-box p{font-size:13px;color:var(--muted)}
+
+/* ── ERROR ── */
+.error-msg{
+  display:none;padding:12px 16px;background:rgba(192,57,43,0.06);
+  border:1px solid rgba(192,57,43,0.2);border-radius:8px;
+  font-size:12px;color:var(--red);line-height:1.5;margin-bottom:14px;
+}
+.error-msg.show{display:block}
+
+/* ── PENDING / FAILURE ── */
+.status-msg{
+  text-align:center;padding:32px 20px;
+}
+.status-msg .icon{font-size:36px;margin-bottom:12px}
+.status-msg h2{font-size:22px;color:var(--navy);margin-bottom:6px}
+.status-msg p{font-size:13px;color:var(--muted);margin-bottom:16px}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="shop.html" class="nav-back">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+    Volver a tienda
+  </a>
+  <div class="nav-brand">Peptidos & <em>Biohacking</em></div>
+</nav>
+
+<div class="checkout-wrap" id="checkout-form">
+
+  <!-- ─── LEFT: FORM ─── -->
+  <div>
+    <!-- Product summary -->
+    <div class="card">
+      <div class="card-header">Resumen del pedido</div>
+      <div class="card-body" id="order-items"></div>
+    </div>
+
+    <!-- Shipping form -->
+    <div class="card">
+      <div class="card-header">Informacion de envio</div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>Nombre completo</label>
+          <input type="text" id="ship-name" placeholder="Ej: Juan Perez Garcia" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Telefono</label>
+            <input type="tel" id="ship-phone" placeholder="662 123 4567" required>
+          </div>
+          <div class="form-group">
+            <label>Correo electronico</label>
+            <input type="email" id="ship-email" placeholder="correo@ejemplo.com" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Direccion de envio</label>
+          <input type="text" id="ship-address" placeholder="Calle, numero, colonia, ciudad" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Estado</label>
+            <select id="ship-state">
+              <option value="">Seleccionar...</option>
+              <option>Sonora</option><option>Sinaloa</option><option>Baja California</option>
+              <option>Chihuahua</option><option>Nuevo Leon</option><option>Ciudad de Mexico</option>
+              <option>Jalisco</option><option>Otro</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Codigo postal</label>
+            <input type="text" id="ship-zip" placeholder="83000">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── RIGHT: SUMMARY + PAY ─── -->
+  <div>
+    <div class="card" style="position:sticky;top:20px">
+      <div class="card-header">Total</div>
+      <div class="card-body">
+
+        <div class="section-title">Productos</div>
+        <div id="summary-items"></div>
+
+        <!-- Upsell -->
+        <div style="margin-top:16px">
+          <div class="section-title">Atencion especializada</div>
+          <div class="upsell selected" id="upsell-toggle">
+            <div class="upsell-row" onclick="toggleUpsell()">
+              <div>
+                <div class="upsell-title">+ Consulta 30 min con Dr. V</div>
+                <div class="upsell-desc">Valoracion personalizada, ajuste de dosis, videollamada privada.</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+                <div class="upsell-check" id="upsell-check"></div>
+                <div class="upsell-price">+$1,500 MXN</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video notice -->
+        <div style="margin:14px 0;padding:12px;background:rgba(42,124,111,0.04);border:1px dashed rgba(42,124,111,0.2);border-radius:8px;font-size:11px;color:var(--muted);line-height:1.6">
+          Video de bienvenida del <strong style="color:var(--teal)">Dr. Valenzuela</strong> proximamente. Recibiras un enlace en tu correo de confirmacion.
+        </div>
+
+        <!-- Error -->
+        <div class="error-msg" id="error-msg"></div>
+
+        <!-- Total -->
+        <div class="total-row">
+          <span class="total-label">Total:</span>
+          <span class="total-price" id="total-price">$0 MXN</span>
+        </div>
+
+        <button class="cta-btn" id="pay-btn" onclick="submitOrder()">
+          Pagar con Mercado Pago
+        </button>
+        <div class="secure-badge">Pago seguro cifrado · Mercado Pago</div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ─── THANK YOU ─── -->
+<div id="thankyou">
+  <div class="checkout-wrap" style="display:block;max-width:560px">
+    <div class="card thankyou-card">
+      <div class="check-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" width="34" height="34"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <h2>Gracias por tu <em>confianza</em></h2>
+      <p class="sub">
+        Hemos recibido tu pedido correctamente. El Dr. Valenzuela revisara tu perfil y te confirmara los detalles en las proximas horas.
+      </p>
+      <div class="tracking-note">
+        Recibiras tu numero de seguimiento por correo o WhatsApp en cuanto procesemos tu pedido. Mantente atento a tus notificaciones.
+      </div>
+      <div class="divider"></div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:14px">
+        ¿Necesitas atencion especial o tienes dudas sobre tu protocolo?<br>
+        Agenda una consulta personalizada con el Dr. Valenzuela.
+      </p>
+      <button class="consult-cta" onclick="window.location.href='index.html#consulta'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Agendar cita con Dr. V
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── LOADING ─── -->
+<div class="loading-overlay" id="loading">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <p>Procesando tu pago...</p>
+  </div>
+</div>
+
+<script>
+var CONSULT_PRICE = 1500;
+var upsellOn = true;
+
+// Read cart from sessionStorage
+var cart = [];
+try {
+  var stored = sessionStorage.getItem('peptbio_cart');
+  if (stored) cart = JSON.parse(stored);
+} catch(e) {}
+
+var CATALOG_NAMES = {
+  'glp3-12': 'GLP-3 12mg', 'glp3-24': 'GLP-3 24mg', 'glp3-48': 'GLP-3 48mg',
+  'bpc-tb500': 'BPC-157 / TB-500', 'cjc-1295': 'CJC-1295 / Ipamorelin',
+  'tesa-ipa': 'Tesamorelin / Ipamorelin', 'motsc-10': 'MOTS-C 10mg',
+  'dsip-10': 'DSIP 10mg', 'semax-10': 'Semax / Selank',
+  'glow-70': 'GLOW Protocol 70mg', 'epitalon': 'Epitalon 10mg',
+  'pt141': 'PT-141 10mg', 'bact-water-30': 'Agua Bacteriostatica 30ml',
+  'bact-water-3': 'Agua Bacteriostatica 3ml'
+};
+var CATALOG_PRICES = {
+  'glp3-12': 3900, 'glp3-24': 5400, 'glp3-48': 7400,
+  'bpc-tb500': 3700, 'cjc-1295': 3900,
+  'tesa-ipa': 4400, 'motsc-10': 3900,
+  'dsip-10': 3700, 'semax-10': 3700,
+  'glow-70': 4900, 'epitalon': 3400,
+  'pt141': 3400, 'bact-water-30': 900, 'bact-water-3': 300
+};
+
+function renderOrder() {
+  var container = document.getElementById('order-items');
+  var summary = document.getElementById('summary-items');
+  if (cart.length === 0) {
+    container.innerHTML = '<p style="text-align:center;padding:20px;color:var(--muted)">No hay productos en tu carrito. <a href="shop.html" style="color:var(--teal);font-weight:600">Volver a tienda</a></p>';
+    return;
+  }
+  var html = '';
+  var sumHtml = '';
+  cart.forEach(function(item) {
+    var name = CATALOG_NAMES[item.sku] || item.sku;
+    var price = CATALOG_PRICES[item.sku] || 0;
+    var subtotal = price * item.qty;
+    html += '<div class="order-item"><div><div class="name">' + name + '</div><div class="qty">Cant: ' + item.qty + '</div></div><div class="price">$' + subtotal.toLocaleString() + ' MXN</div></div>';
+    sumHtml += '<div class="order-item" style="padding:8px 0"><div class="name" style="font-size:13px">' + name + ' <span style="font-weight:400;color:var(--muted)">x' + item.qty + '</span></div><div class="price" style="font-size:15px">$' + subtotal.toLocaleString() + '</div></div>';
+  });
+  container.innerHTML = html;
+  summary.innerHTML = sumHtml;
+  updateTotal();
+}
+
+function updateTotal() {
+  var itemsTotal = cart.reduce(function(sum, item) {
+    return sum + (CATALOG_PRICES[item.sku] || 0) * item.qty;
+  }, 0);
+  var total = itemsTotal + (upsellOn ? CONSULT_PRICE : 0);
+  document.getElementById('total-price').textContent = '$' + total.toLocaleString() + ' MXN';
+}
+
+function toggleUpsell() {
+  upsellOn = !upsellOn;
+  document.getElementById('upsell-toggle').classList.toggle('selected', upsellOn);
+  document.getElementById('upsell-check').textContent = upsellOn ? '✓' : '';
+  updateTotal();
+}
+
+function showError(msg) {
+  var el = document.getElementById('error-msg');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+function hideError() {
+  document.getElementById('error-msg').classList.remove('show');
+}
+
+function submitOrder() {
+  hideError();
+
+  // Validate form
+  var name = document.getElementById('ship-name').value.trim();
+  var phone = document.getElementById('ship-phone').value.trim();
+  var email = document.getElementById('ship-email').value.trim();
+  var address = document.getElementById('ship-address').value.trim();
+
+  if (!name) { showError('Por favor ingresa tu nombre completo.'); return; }
+  if (!phone) { showError('Por favor ingresa tu telefono.'); return; }
+  if (!email) { showError('Por favor ingresa tu correo electronico.'); return; }
+  if (!address) { showError('Por favor ingresa tu direccion de envio.'); return; }
+
+  if (cart.length === 0) { showError('Tu carrito esta vacio.'); return; }
+
+  var items = cart.map(function(i) { return { sku: i.sku, quantity: i.qty }; });
+  var shipping = {
+    name: name,
+    phone: phone,
+    email: email,
+    address: address,
+    state: document.getElementById('ship-state').value,
+    zip: document.getElementById('ship-zip').value.trim(),
+  };
+
+  var btn = document.getElementById('pay-btn');
+  btn.disabled = true;
+  btn.textContent = 'Procesando...';
+  document.getElementById('loading').classList.add('show');
+
+  fetch('https://myymemctdxwizhmwjbyk.supabase.co/functions/v1/submit-order', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ items: items, shipping: shipping, upsell: upsellOn }),
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    document.getElementById('loading').classList.remove('show');
+    if (d.init_point) {
+      // Clear cart from session
+      sessionStorage.removeItem('peptbio_cart');
+      window.location.href = d.init_point;
+    } else {
+      throw new Error(d.error || 'Error al procesar el pago');
+    }
+  })
+  .catch(function(e) {
+    document.getElementById('loading').classList.remove('show');
+    btn.disabled = false;
+    btn.textContent = 'Pagar con Mercado Pago';
+    showError(e.message || 'No se pudo procesar el pago. Intenta de nuevo.');
+    console.error(e);
+  });
+}
+
+// ── MP RETURN HANDLING ──
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var status = params.get('status');
+  var collection = params.get('collection_id');
+  if (!status) return;
+
+  if (status === 'success') {
+    document.getElementById('checkout-form').style.display = 'none';
+    document.getElementById('thankyou').classList.add('show');
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  } else if (status === 'pending') {
+    document.getElementById('checkout-form').innerHTML = 
+      '<div class="card" style="max-width:480px;margin:40px auto"><div class="status-msg">' +
+      '<div class="icon">⏳</div>' +
+      '<h2>Pago en proceso</h2>' +
+      '<p>Tu pago esta siendo procesado. Te confirmaremos por WhatsApp en cuanto se acredite.</p>' +
+      '<a href="shop.html" style="color:var(--teal);font-weight:600">Volver a tienda</a></div></div>';
+  } else if (status === 'failure') {
+    document.getElementById('checkout-form').innerHTML = 
+      '<div class="card" style="max-width:480px;margin:40px auto"><div class="status-msg">' +
+      '<div class="icon">❌</div>' +
+      '<h2>Pago no completado</h2>' +
+      '<p>El pago no se pudo completar. Puedes intentarlo de nuevo o contactarnos por WhatsApp.</p>' +
+      '<a href="shop.html" style="color:var(--teal);font-weight:600">Intentar de nuevo</a></div></div>';
+  }
+})();
+
+renderOrder();
+</script>
+</body>
+</html>

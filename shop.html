@@ -334,6 +334,43 @@ footer{background:var(--navy);padding:40px 32px 24px}
   transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;
 }
 .order-consult-btn:hover{background:#122438;transform:translateY(-1px)}
+/* ── STOCK BADGES ── */
+.stock-badge{
+  position:absolute;top:10px;right:10px;
+  font-size:7px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+  padding:2px 7px;border-radius:20px;z-index:2;
+}
+.stock-badge.in-stock{background:rgba(42,124,111,0.12);color:var(--teal);border:1px solid rgba(42,124,111,0.25)}
+.stock-badge.low{background:rgba(184,146,90,0.12);color:var(--gold);border:1px solid rgba(184,146,90,0.25)}
+.stock-badge.agotado{background:rgba(192,57,43,0.12);color:#C0392B;border:1px solid rgba(192,57,43,0.25)}
+.pcard.agotado{opacity:.65;position:relative;pointer-events:auto;cursor:pointer}
+.pcard.agotado .padd-btn{background:var(--light);color:var(--muted);cursor:default;pointer-events:none}
+/* ── STOCK MODAL ── */
+.stock-modal{
+  position:fixed;inset:0;z-index:99999;
+  background:rgba(11,28,46,0.7);backdrop-filter:blur(4px);
+  display:none;align-items:center;justify-content:center;padding:24px;
+}
+.stock-modal.open{display:flex}
+.stock-modal-box{
+  background:var(--white);border-radius:16px;
+  max-width:400px;width:100%;padding:32px 28px 24px;text-align:center;
+  box-shadow:0 40px 80px rgba(0,0,0,0.3);
+}
+.stock-modal-box h3{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--navy);margin-bottom:6px}
+.stock-modal-box p{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:18px}
+.stock-modal-box .warn-icon{width:52px;height:52px;border-radius:50%;background:rgba(192,57,43,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.sm-actions{display:flex;gap:8px}
+.sm-actions button{
+  flex:1;padding:12px;border-radius:8px;font-family:'Outfit',sans-serif;
+  font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;
+}
+.sm-primary{background:var(--teal);color:var(--white);border:none}
+.sm-primary:hover{background:var(--teal2)}
+.sm-secondary{background:var(--light);color:var(--muted);border:1px solid var(--border)}
+.sm-secondary:hover{background:var(--offwhite)}
+.sm-email{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;margin-bottom:12px;font-family:'Outfit',sans-serif;outline:none}
+.sm-email:focus{border-color:var(--teal)}
 </style>
 </head>
 <body>
@@ -469,6 +506,23 @@ footer{background:var(--navy);padding:40px 32px 24px}
   </div>
 </div>
 
+<!-- STOCK MODAL -->
+<div class="stock-modal" id="stock-modal">
+  <div class="stock-modal-box">
+    <div class="warn-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#C0392B" stroke-width="1.5" width="24" height="24"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+    </div>
+    <h3 id="sm-title" data-es="Producto agotado" data-en="Out of stock">Producto agotado</h3>
+    <p id="sm-desc" data-es="Este producto no esta disponible actualmente. Dejanos tu correo para avisarte cuando regrese, o contactanos por WhatsApp para conocer alternativas." data-en="This product is currently unavailable. Leave your email to be notified when back in stock, or contact us via WhatsApp for alternatives.">Este producto no esta disponible actualmente.</p>
+    <input class="sm-email" type="email" id="sm-email" placeholder="tu@correo.com" data-es="tu@correo.com" data-en="your@email.com">
+    <div class="sm-actions">
+      <button class="sm-primary" onclick="notifyStock()" data-es="Avisarme" data-en="Notify me">Avisarme</button>
+      <button class="sm-secondary" onclick="waStockNotify()" data-es="WhatsApp" data-en="WhatsApp">WhatsApp</button>
+    </div>
+    <button style="background:none;border:none;color:var(--muted);font-size:11px;margin-top:12px;cursor:pointer;font-family:'Outfit',sans-serif" onclick="closeStockModal()" data-es="Cerrar" data-en="Close">Cerrar</button>
+  </div>
+</div>
+
 <!-- NAV -->
 <nav>
   <div class="nav-left">
@@ -594,11 +648,12 @@ footer{background:var(--navy);padding:40px 32px 24px}
           data-es="Agregar" data-en="Add">Agregar</button>
       </div>
     </div>
-    <div class="pcard" data-cat="bpc">
+    <div class="pcard agotado" data-cat="bpc" onclick="showStockModal()">
       <div class="pcard-img">
         <img src="images/products/bpc157.jpg" class="pcard-photo" alt="BPC-157 / TB-500">
         <span class="pcat-badge" data-es="Recuperación" data-en="Recovery">Recuperación</span>
         <span class="pmed-badge" data-es="Médico" data-en="Medical">Médico</span>
+        <span class="stock-badge agotado" data-es="Agotado" data-en="Out of stock">Agotado</span>
       </div>
       <div class="pcard-body">
         <div class="pname">BPC-157 / TB-500</div>
@@ -616,11 +671,12 @@ footer{background:var(--navy);padding:40px 32px 24px}
           data-es="Agregar" data-en="Add">Agregar</button>
       </div>
     </div>
-    <div class="pcard" data-cat="glow">
+    <div class="pcard agotado" data-cat="glow" onclick="showStockModal()">
       <div class="pcard-img">
         <img src="images/products/glow.jpg" class="pcard-photo" alt="GLOW Protocol">
         <span class="pcat-badge" data-es="Piel y Estética" data-en="Skin & Aesthetics">Piel y Estética</span>
         <span class="pmed-badge" data-es="Médico" data-en="Medical">Médico</span>
+        <span class="stock-badge agotado" data-es="Agotado" data-en="Out of stock">Agotado</span>
       </div>
       <div class="pcard-body">
         <div class="pname">GLOW Protocol</div>
@@ -1217,28 +1273,9 @@ function updateCartUI() {
 
 function checkoutCart() {
   if (cart.length === 0) return;
-  var btn = document.getElementById('cart-checkout-btn');
-  btn.textContent = 'Procesando...';
-  btn.disabled = true;
-
-  var items = cart.map(function(i) { return { sku: i.sku, quantity: i.qty }; });
-
-  fetch(MP_FN_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ items: items })
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(d) {
-    if (d.init_point) { window.location.href = d.init_point; }
-    else { throw new Error(d.error || 'Sin init_point'); }
-  })
-  .catch(function(e) {
-    btn.textContent = 'Pagar ahora';
-    btn.disabled = false;
-    alert('No se pudo iniciar el pago. Intenta de nuevo.');
-    console.error(e);
-  });
+  // Save cart to sessionStorage for checkout page
+  sessionStorage.setItem('peptbio_cart', JSON.stringify(cart));
+  window.location.href = 'checkout.html';
 }
 
 // Inline status banner from MP back_urls
@@ -1262,6 +1299,30 @@ function checkoutCart() {
     window.history.replaceState({}, '', window.location.pathname);
   }
 })();
+
+/* ── STOCK MODAL ── */
+function showStockModal() {
+  document.getElementById('stock-modal').classList.add('open');
+  var email = document.getElementById('sm-email');
+  if (email) email.value = '';
+}
+function closeStockModal() {
+  document.getElementById('stock-modal').classList.remove('open');
+}
+function notifyStock() {
+  var email = document.getElementById('sm-email').value.trim();
+  if (!email) { alert('Por favor ingresa tu correo electronico.'); return; }
+  var waMsg = 'Hola Dr. Valenzuela, me interesa un producto que esta agotado. Mi correo es ' + email + '. Por favor aviseme cuando este disponible.';
+  closeStockModal();
+  window.open('https://wa.me/' + WA + '?text=' + encodeURIComponent(waMsg), '_blank');
+}
+function waStockNotify() {
+  closeStockModal();
+  window.open('https://wa.me/' + WA + '?text=' + encodeURIComponent('Hola Dr. Valenzuela, me interesa un producto que esta agotado en la tienda. ¿Tiene alternativas disponibles?'), '_blank');
+}
+document.getElementById('stock-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeStockModal();
+});
 </script>
 </body>
 </html>
