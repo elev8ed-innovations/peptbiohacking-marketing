@@ -1275,7 +1275,7 @@ function checkoutCart() {
   if (cart.length === 0) return;
   // Save cart to sessionStorage for checkout page
   sessionStorage.setItem('peptbio_cart', JSON.stringify(cart));
-  window.location.href = 'checkout.html';
+  window.location.href = '/checkout.html';
 }
 
 // Inline status banner from MP back_urls
