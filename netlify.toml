@@ -1,0 +1,17 @@
+# Netlify config — PeptBiohacking Marketing Site (peptbiohacking.com)
+# Deploy Previews: auto-built for every branch pushed to GitHub
+# Preview URL pattern: https://{branch-name}--elev8ed-peptbiohack.netlify.app
+
+[build]
+  publish = "."
+
+[build.processing]
+  skip_processing = false
+
+# Deploy Preview: ALL branches get preview URLs automatically
+[context.deploy-preview]
+  publish = "."
+
+# Branch Deploy: same as preview
+[context.branch-deploy]
+  publish = "."
