@@ -182,7 +182,7 @@ nav{
 <body>
 
 <nav>
-  <a href="shop.html" class="nav-back">
+  <a class='nav-back' href='/shop'>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
     Volver a tienda
   </a>
@@ -219,7 +219,11 @@ nav{
         </div>
         <div class="form-group">
           <label>Direccion de envio</label>
-          <input type="text" id="ship-address" placeholder="Calle, numero, colonia, ciudad" required>
+          <input type="text" id="ship-address" placeholder="Calle, numero, colonia" required>
+        </div>
+        <div class="form-group">
+          <label>Ciudad</label>
+          <input type="text" id="ship-city" placeholder="Ej. Puerto Vallarta, Hermosillo" required>
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -339,20 +343,25 @@ try {
 
 var CATALOG_NAMES = {
   'glp3-12': 'GLP-3 12mg', 'glp3-24': 'GLP-3 24mg', 'glp3-48': 'GLP-3 48mg',
-  'bpc-tb500': 'BPC-157 / TB-500', 'cjc-1295': 'CJC-1295 / Ipamorelin',
+  'bpc-tb500': 'BPC-157 / TB-500', 'bpc-tb500-10': 'BPC-157 / TB-500 10mg',
+  'cjc-1295': 'CJC-1295 / Ipamorelin',
   'tesa-ipa': 'Tesamorelin / Ipamorelin', 'motsc-10': 'MOTS-C 10mg',
   'dsip-10': 'DSIP 10mg', 'semax-10': 'Semax / Selank',
   'glow-70': 'GLOW Protocol 70mg', 'epitalon': 'Epitalon 10mg',
   'pt141': 'PT-141 10mg', 'bact-water-30': 'Agua Bacteriostatica 30ml',
-  'bact-water-3': 'Agua Bacteriostatica 3ml'
+  'bact-water-3': 'Agua Bacteriostatica 3ml',
+  'ghk-cu-50': 'GHK-Cu 50mg', 'ghk-cu-100': 'GHK-Cu 100mg',
+  'kisspeptin-10': 'Kisspeptin 10mg', 'nad-buffered': 'NAD+ BUFFERED'
 };
 var CATALOG_PRICES = {
   'glp3-12': 3900, 'glp3-24': 5400, 'glp3-48': 7400,
-  'bpc-tb500': 3700, 'cjc-1295': 3900,
+  'bpc-tb500': 3700, 'bpc-tb500-10': 4900, 'cjc-1295': 3900,
   'tesa-ipa': 4400, 'motsc-10': 3900,
   'dsip-10': 3700, 'semax-10': 3700,
   'glow-70': 4900, 'epitalon': 3400,
-  'pt141': 3400, 'bact-water-30': 900, 'bact-water-3': 300
+  'pt141': 3400, 'bact-water-30': 900, 'bact-water-3': 300,
+  'ghk-cu-50': 3400, 'ghk-cu-100': 3700,
+  'kisspeptin-10': 3400, 'nad-buffered': 4100
 };
 
 function renderOrder() {
@@ -409,11 +418,13 @@ function submitOrder() {
   var phone = document.getElementById('ship-phone').value.trim();
   var email = document.getElementById('ship-email').value.trim();
   var address = document.getElementById('ship-address').value.trim();
+  var city = document.getElementById('ship-city').value.trim();
 
   if (!name) { showError('Por favor ingresa tu nombre completo.'); return; }
   if (!phone) { showError('Por favor ingresa tu telefono.'); return; }
   if (!email) { showError('Por favor ingresa tu correo electronico.'); return; }
   if (!address) { showError('Por favor ingresa tu direccion de envio.'); return; }
+  if (!city) { showError('Por favor ingresa tu ciudad.'); return; }
 
   if (cart.length === 0) { showError('Tu carrito esta vacio.'); return; }
 
@@ -423,6 +434,7 @@ function submitOrder() {
     phone: phone,
     email: email,
     address: address,
+    ciudad: city,
     state: document.getElementById('ship-state').value,
     zip: document.getElementById('ship-zip').value.trim(),
   };

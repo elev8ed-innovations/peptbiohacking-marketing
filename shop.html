@@ -559,10 +559,10 @@ footer{background:var(--navy);padding:40px 32px 24px}
     <button class="fb on" onclick="filterAll(this)" data-es="Todos" data-en="All">Todos</button>
     <button class="fb" onclick="filterCat('glp3,tesamorelin',this)" data-es="⚖️ Pérdida de Peso" data-en="⚖️ Weight Loss">⚖️ Pérdida de Peso</button>
     <button class="fb" onclick="filterCat('cjc,tesamorelin',this)" data-es="💪 Músculo / Estimulador de Hormona de Crecimiento" data-en="💪 Muscle / GH">💪 Músculo / Estimulador de Hormona de Crecimiento</button>
-    <button class="fb" onclick="filterCat('bpc',this)" data-es="🔧 Recuperación" data-en="🔧 Recovery">🔧 Recuperación</button>
+    <button class="fb" onclick="filterCat('bpc,bpc-10',this)" data-es="🔧 Recuperación" data-en="🔧 Recovery">🔧 Recuperación</button>
     <button class="fb" onclick="filterCat('semax',this)" data-es="🧠 Cognitivo" data-en="🧠 Cognitive">🧠 Cognitivo</button>
-    <button class="fb" onclick="filterCat('epitalon,motsc,dsip',this)" data-es="🧬 Longevidad" data-en="🧬 Longevity">🧬 Longevidad</button>
-    <button class="fb" onclick="filterCat('glow,pt141',this)" data-es="✨ Estético" data-en="✨ Aesthetic">✨ Estético</button>
+    <button class="fb" onclick="filterCat('epitalon,motsc,dsip,nad',this)" data-es="🧬 Longevidad" data-en="🧬 Longevity">🧬 Longevidad</button>
+    <button class="fb" onclick="filterCat('glow,pt141,ghk,kisspeptin',this)" data-es="✨ Estético" data-en="✨ Aesthetic">✨ Estético</button>
     <button class="fb" onclick="filterCat('agua',this)" data-es="🩺 Accesorios" data-en="🩺 Accessories">🩺 Accesorios</button>
   </div>
 </div>
@@ -671,6 +671,28 @@ footer{background:var(--navy);padding:40px 32px 24px}
           data-es="Agregar" data-en="Add">Agregar</button>
       </div>
     </div>
+    <div class="pcard" data-cat="bpc-10">
+      <div class="pcard-img">
+        <img src="images/products/bpc157.jpg" class="pcard-photo" alt="BPC-157 / TB-500 10mg">
+        <span class="pcat-badge" data-es="Recuperación" data-en="Recovery">Recuperación</span>
+        <span class="pmed-badge" data-es="Médico" data-en="Medical">Médico</span>
+      </div>
+      <div class="pcard-body">
+        <div class="pname">BPC-157 / TB-500 <span style="font-weight:400;font-size:12px;color:var(--muted)">10mg/10mg</span></div>
+        <div class="pcat" data-es="Recuperación" data-en="Recovery">Recuperación</div>
+        <p class="pdesc" data-es="Dosis concentrada 10mg/10mg del stack de recuperación más efectivo. Acelera sanación de tejidos y reduce inflamación severa." data-en="Concentrated 10mg/10mg dose of the most effective recovery stack. Accelerates tissue healing and reduces severe inflammation.">Dosis concentrada del stack de recuperación más efectivo.</p>
+        <div class="pspecs">10mg+10mg · Inyectable · 6–8 semanas</div>
+        <div class="ptags"><span class="ptag" data-es="Lesiones" data-en="Injuries">Lesiones</span><span class="ptag" data-es="Articulaciones" data-en="Joints">Articulaciones</span><span class="ptag" data-es="Dosis alta" data-en="High dose">Dosis alta</span></div>
+        <div class="pprice-row">
+          <div>
+            <div class="pprice">$4,900 <span>MXN</span></div>
+            <div class="pprice-usd">~$245 USD</div>
+          </div>
+        </div>
+        <button class="padd-btn" data-sku="bpc-tb500-10" onclick="addToCart(this)"
+          data-es="Agregar" data-en="Add">Agregar</button>
+      </div>
+    </div>
     <div class="pcard agotado" data-cat="glow" onclick="showStockModal()">
       <div class="pcard-img">
         <img src="images/products/glow.jpg" class="pcard-photo" alt="GLOW Protocol">
@@ -691,6 +713,50 @@ footer{background:var(--navy);padding:40px 32px 24px}
           </div>
         </div>
         <button class="padd-btn" data-sku="glow-70" onclick="addToCart(this)"
+          data-es="Agregar" data-en="Add">Agregar</button>
+      </div>
+    </div>
+    <div class="pcard" data-cat="ghk">
+      <div class="pcard-img">
+        <img src="images/products/glow.jpg" class="pcard-photo" alt="GHK-Cu 50mg">
+        <span class="pcat-badge" data-es="Piel y Estética" data-en="Skin & Aesthetics">Piel y Estética</span>
+        <span class="pmed-badge" data-es="Médico" data-en="Medical">Médico</span>
+      </div>
+      <div class="pcard-body">
+        <div class="pname">GHK-Cu</div>
+        <div class="pcat" data-es="Piel y Estética" data-en="Skin & Aesthetics">Piel y Estética</div>
+        <p class="pdesc" data-es="Péptido de cobre con potentes propiedades regenerativas para la piel. Estimula colágeno, mejora elasticidad y acelera cicatrización." data-en="Copper peptide with powerful skin regenerative properties. Stimulates collagen, improves elasticity and accelerates healing.">Péptido de cobre regenerativo para la piel.</p>
+        <div class="pspecs">50mg / vial · Inyectable · 6–8 semanas</div>
+        <div class="ptags"><span class="ptag" data-es="Colágeno" data-en="Collagen">Colágeno</span><span class="ptag" data-es="Anti-edad" data-en="Anti-aging">Anti-edad</span><span class="ptag" data-es="Cicatrización" data-en="Healing">Cicatrización</span></div>
+        <div class="pprice-row">
+          <div>
+            <div class="pprice">$3,400 <span>MXN</span></div>
+            <div class="pprice-usd">~$170 USD</div>
+          </div>
+        </div>
+        <button class="padd-btn" data-sku="ghk-cu-50" onclick="addToCart(this)"
+          data-es="Agregar" data-en="Add">Agregar</button>
+      </div>
+    </div>
+    <div class="pcard" data-cat="ghk-100">
+      <div class="pcard-img">
+        <img src="images/products/glow.jpg" class="pcard-photo" alt="GHK-Cu 100mg">
+        <span class="pcat-badge" data-es="Piel y Estética" data-en="Skin & Aesthetics">Piel y Estética</span>
+        <span class="pmed-badge" data-es="Médico" data-en="Medical">Médico</span>
+      </div>
+      <div class="pcard-body">
+        <div class="pname">GHK-Cu</div>
+        <div class="pcat" data-es="Piel y Estética" data-en="Skin & Aesthetics">Piel y Estética</div>
+        <p class="pdesc" data-es="Dosis concentrada 100mg del péptido de cobre para protocolos avanzados de regeneración cutánea y anti-envejecimiento." data-en="Concentrated 100mg dose of copper peptide for advanced skin regeneration and anti-aging protocols.">Dosis concentrada para protocolos avanzados de regeneración cutánea.</p>
+        <div class="pspecs">100mg / vial · Inyectable · 8–12 semanas</div>
+        <div class="ptags"><span class="ptag" data-es="Colágeno" data-en="Collagen">Colágeno</span><span class="ptag" data-es="Dosis alta" data-en="High dose">Dosis alta</span><span class="ptag" data-es="Anti-edad" data-en="Anti-aging">Anti-edad</span></div>
+        <div class="pprice-row">
+          <div>
+            <div class="pprice">$3,700 <span>MXN</span></div>
+            <div class="pprice-usd">~$185 USD</div>
+          </div>
+        </div>
+        <button class="padd-btn" data-sku="ghk-cu-100" onclick="addToCart(this)"
           data-es="Agregar" data-en="Add">Agregar</button>
       </div>
     </div>
@@ -782,6 +848,28 @@ footer{background:var(--navy);padding:40px 32px 24px}
           data-es="Agregar" data-en="Add">Agregar</button>
       </div>
     </div>
+    <div class="pcard" data-cat="nad">
+      <div class="pcard-img">
+        <img src="images/products/epitalon.jpg" class="pcard-photo" alt="NAD+ BUFFERED">
+        <span class="pcat-badge" data-es="Longevidad Celular" data-en="Cellular Longevity">Longevidad Celular</span>
+        <span class="pmed-badge" data-es="Médico" data-en="Medical">Médico</span>
+      </div>
+      <div class="pcard-body">
+        <div class="pname">NAD+</div>
+        <div class="pcat" data-es="Longevidad Celular" data-en="Cellular Longevity">Longevidad Celular</div>
+        <p class="pdesc" data-es="Nicotinamida adenina dinucleótido en presentación buffer para energía celular, reparación de ADN y función cognitiva. El cofactor esencial de longevidad." data-en="Buffered nicotinamide adenine dinucleotide for cellular energy, DNA repair and cognitive function. The essential longevity cofactor.">NAD+ buffer para energía celular y longevidad.</p>
+        <div class="pspecs">Bufferado · Inyectable Intravenoso/IM · Según protocolo</div>
+        <div class="ptags"><span class="ptag" data-es="Energía" data-en="Energy">Energía</span><span class="ptag" data-es="Reparación ADN" data-en="DNA repair">Reparación ADN</span><span class="ptag" data-es="Longevidad" data-en="Longevity">Longevidad</span></div>
+        <div class="pprice-row">
+          <div>
+            <div class="pprice">$4,100 <span>MXN</span></div>
+            <div class="pprice-usd">~$205 USD</div>
+          </div>
+        </div>
+        <button class="padd-btn" data-sku="nad-buffered" onclick="addToCart(this)"
+          data-es="Agregar" data-en="Add">Agregar</button>
+      </div>
+    </div>
     <div class="pcard" data-cat="dsip">
       <div class="pcard-img">
         <img src="images/products/dsip.jpg" class="pcard-photo" alt="DSIP 10mg">
@@ -823,6 +911,28 @@ footer{background:var(--navy);padding:40px 32px 24px}
           </div>
         </div>
         <button class="padd-btn" data-sku="pt141" onclick="addToCart(this)"
+          data-es="Agregar" data-en="Add">Agregar</button>
+      </div>
+    </div>
+    <div class="pcard" data-cat="kisspeptin">
+      <div class="pcard-img">
+        <img src="images/products/pt141.jpg" class="pcard-photo" alt="Kisspeptin 10mg">
+        <span class="pcat-badge" data-es="Bienestar Hormonal" data-en="Hormonal Wellness">Bienestar Hormonal</span>
+        <span class="pmed-badge" data-es="Médico" data-en="Medical">Médico</span>
+      </div>
+      <div class="pcard-body">
+        <div class="pname">Kisspeptin</div>
+        <div class="pcat" data-es="Bienestar Hormonal" data-en="Hormonal Wellness">Bienestar Hormonal</div>
+        <p class="pdesc" data-es="Péptido natural que estimula la liberación de GnRH y hormonas sexuales. Mejora libido, fertilidad y equilibrio hormonal en ambos sexos." data-en="Natural peptide that stimulates GnRH and sex hormone release. Improves libido, fertility and hormonal balance in both sexes.">Péptido natural para equilibrio hormonal y libido.</p>
+        <div class="pspecs">10mg / vial · Inyectable · 4–8 semanas</div>
+        <div class="ptags"><span class="ptag" data-es="Libido" data-en="Libido">Libido</span><span class="ptag" data-es="Fertilidad" data-en="Fertility">Fertilidad</span><span class="ptag" data-es="Hormonas" data-en="Hormones">Hormonas</span></div>
+        <div class="pprice-row">
+          <div>
+            <div class="pprice">$3,400 <span>MXN</span></div>
+            <div class="pprice-usd">~$170 USD</div>
+          </div>
+        </div>
+        <button class="padd-btn" data-sku="kisspeptin-10" onclick="addToCart(this)"
           data-es="Agregar" data-en="Add">Agregar</button>
       </div>
     </div>
@@ -1170,21 +1280,114 @@ var MP_FN_URL = 'https://myymemctdxwizhmwjbyk.supabase.co/functions/v1/create-mp
 var cart = [];
 var CATALOG_NAMES = {
   'glp3-12': 'GLP-3 12mg', 'glp3-24': 'GLP-3 24mg', 'glp3-48': 'GLP-3 48mg',
-  'bpc-tb500': 'BPC-157 / TB-500', 'cjc-1295': 'CJC-1295 / Ipamorelin',
+  'bpc-tb500': 'BPC-157 / TB-500', 'bpc-tb500-10': 'BPC-157 / TB-500 10mg',
+  'cjc-1295': 'CJC-1295 / Ipamorelin',
   'tesa-ipa': 'Tesamorelin / Ipamorelin', 'motsc-10': 'MOTS-C 10mg',
   'dsip-10': 'DSIP 10mg', 'semax-10': 'Semax / Selank',
   'glow-70': 'GLOW Protocol 70mg', 'epitalon': 'Epitalon 10mg',
   'pt141': 'PT-141 10mg', 'bact-water-30': 'Agua Bacteriost\u00e1tica 30ml',
-  'bact-water-3': 'Agua Bacteriost\u00e1tica 3ml'
+  'bact-water-3': 'Agua Bacteriost\u00e1tica 3ml',
+  'ghk-cu-50': 'GHK-Cu 50mg', 'ghk-cu-100': 'GHK-Cu 100mg',
+  'kisspeptin-10': 'Kisspeptin 10mg', 'nad-buffered': 'NAD+ BUFFERED'
 };
 var CATALOG_PRICES = {
   'glp3-12': 3900, 'glp3-24': 5400, 'glp3-48': 7400,
-  'bpc-tb500': 3700, 'cjc-1295': 3900,
+  'bpc-tb500': 3700, 'bpc-tb500-10': 4900, 'cjc-1295': 3900,
   'tesa-ipa': 4400, 'motsc-10': 3900,
   'dsip-10': 3700, 'semax-10': 3700,
   'glow-70': 4900, 'epitalon': 3400,
-  'pt141': 3400, 'bact-water-30': 900, 'bact-water-3': 300
+  'pt141': 3400, 'bact-water-30': 900, 'bact-water-3': 300,
+  'ghk-cu-50': 3400, 'ghk-cu-100': 3700,
+  'kisspeptin-10': 3400, 'nad-buffered': 4100
 };
+
+// ── Dynamic stock from Airtable ──
+// Maps product card data-cat attributes to SKUs
+const CAT_TO_SKU = {
+  'semax': 'semax-10', 'dsip': 'dsip-10', 'bpc': 'bpc-tb500',
+  'bpc-10': 'bpc-tb500-10', 'cjc': 'cjc-1295', 'tesa': 'tesa-ipa', 'glow': 'glow-70',
+  'motsc': 'motsc-10', 'epitalon': 'epitalon', 'pt141': 'pt141',
+  'ghk': 'ghk-cu-50', 'ghk-100': 'ghk-cu-100',
+  'kisspeptin': 'kisspeptin-10', 'nad': 'nad-buffered',
+  'glp3': 'glp3-12', 'glp3-24': 'glp3-24', 'glp3-48': 'glp3-48',
+  'bact-water': 'bact-water-30', 'bact-water-3': 'bact-water-3',
+};
+
+async function applyStockFromAirtable() {
+  try {
+    const resp = await fetch('https://peptbiohacking.mx/.netlify/functions/get-inventory');
+    const data = await resp.json();
+    const stockMap = {};
+    (data.products || []).forEach(function(p) {
+      // Map Airtable name to our internal product name
+      var key = p.peptido.toLowerCase().replace(/[^a-z0-9]/g,'').replace(/\s+/g,'');
+      stockMap[key] = p.stock;
+    });
+
+    // Apply to product cards
+    document.querySelectorAll('.pcard').forEach(function(card) {
+      var cat = card.getAttribute('data-cat');
+      // Map category to expected stock lookup key
+      var lookup = cat;
+      // Convert GLP-3 variants properly
+      if (cat === 'glp3') lookup = 'glp312mg';
+      else if (cat === 'glp3-24') lookup = 'glp324mg';
+      else if (cat === 'glp3-48') lookup = 'glp348mg';
+      else if (cat === 'bpc') lookup = 'bpc157tb5005mg5mg';
+      else if (cat === 'bpc-10') lookup = 'bpc157tb50010mg10mg';
+      else if (cat === 'cjc') lookup = 'cjc1295ipamorelin5mg5mg';
+      else if (cat === 'tesa') lookup = 'tesamorelinipamorelin';
+      else if (cat === 'motsc') lookup = 'motsc10mg';
+      else if (cat === 'semax') lookup = 'semaxselank';
+      else if (cat === 'glow') lookup = 'glowbpc157tb500ghkcu';
+      else if (cat === 'ghk' || cat === 'ghk-100') lookup = 'ghkcu';
+      else if (cat === 'kisspeptin') lookup = 'kisspeptin10mg';
+      else if (cat === 'nad') lookup = 'nadbuffered';
+      else if (cat === 'epitalon') lookup = 'epitalon10mg';
+      else if (cat === 'pt141') lookup = 'pt14110mg';
+      else if (cat === 'dsip') lookup = 'dsip10mg';
+      else if (cat === 'bact-water') lookup = 'aguabacteriostatica30ml';
+      else if (cat === 'bact-water-3') lookup = 'aguabacteriostatica3ml';
+
+      var stock = stockMap[lookup];
+      if (stock === undefined) return; // no data, keep as-is
+      
+      var btn = card.querySelector('button[data-sku]');
+      var existingBadge = card.querySelector('.stock-badge');
+      
+      if (stock <= 0) {
+        card.classList.add('agotado');
+        card.onclick = function() { showStockModal(); };
+        if (btn) btn.style.display = 'none';
+        if (!existingBadge) {
+          var badge = document.createElement('span');
+          badge.className = 'stock-badge agotado';
+          badge.textContent = 'Agotado';
+          card.querySelector('.pcard-body').insertBefore(badge, card.querySelector('.pcard-body').firstChild);
+        }
+      } else if (stock <= 10) {
+        if (!existingBadge) {
+          var badge = document.createElement('span');
+          badge.className = 'stock-badge low';
+          badge.textContent = 'Stock: ' + stock;
+          card.querySelector('.pcard-body').insertBefore(badge, card.querySelector('.pcard-body').firstChild);
+        }
+      } else {
+        // In stock - show stock count
+        if (!existingBadge) {
+          var badge = document.createElement('span');
+          badge.className = 'stock-badge in-stock';
+          badge.textContent = 'Stock: ' + stock;
+          card.querySelector('.pcard-body').insertBefore(badge, card.querySelector('.pcard-body').firstChild);
+        }
+      }
+    });
+  } catch(e) {
+    console.error('Stock fetch failed:', e);
+  }
+}
+applyStockFromAirtable();
+
 
 function addToCart(btn) {
   var sku = btn.getAttribute('data-sku');
