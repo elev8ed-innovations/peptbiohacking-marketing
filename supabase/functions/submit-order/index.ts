@@ -21,10 +21,11 @@ const CATALOG: Record<string, { title: string; price: number }> = {
   "cjc-1295":      { title: "CJC-1295 / Ipamorelin", price: 3900 },
   "epitalon":      { title: "Epitalon 10mg", price: 3400 },
   "pt141":         { title: "PT-141 10mg", price: 3400 },
-  "ghk-cu-50":     { title: "GHK-Cu 50mg", price: 0 },
-  "nad-buffered":  { title: "NAD+ Buffered", price: 0 },
-  "bpc-tb500-10":  { title: "BPC-157/TB-500 10mg/10mg", price: 0 },
-  "kisspeptin-10": { title: "Kisspeptin 10mg", price: 0 },
+  "ghk-cu-50":     { title: "GHK-Cu 50mg", price: 3400 },
+  "ghk-cu-100":    { title: "GHK-Cu 100mg", price: 3700 },
+  "nad-buffered":  { title: "NAD+ Buffered", price: 4100 },
+  "bpc-tb500-10":  { title: "BPC-157/TB-500 10mg/10mg", price: 4900 },
+  "kisspeptin-10": { title: "Kisspeptin 10mg", price: 3400 },
   "igf1-lr3-100":  { title: "IGF-1 LR3 100mg", price: 0 },
 };
 
