@@ -31,7 +31,7 @@ const CATALOG: Record<string, { title: string; price: number }> = {
 
 const SITE = "https://peptbiohacking.com";
 const AIRTABLE_BASE = "appoSOvq7flVkIase";
-const AIRTABLE_INVENTORY = "Shop%20Inventory";
+const AIRTABLE_INVENTORY = "Shop Inventory";
 const AIRTABLE_ORDERS = "Ordenes";
 
 const CONSULT_PRICE = 1500;
@@ -39,7 +39,7 @@ const CONSULT_PRICE = 1500;
 async function fetchInventory(): Promise<Record<string, { stock: number; status: string; price: number }>> {
   const token = Deno.env.get("AIRTABLE_TOKEN");
   if (!token) return {};
-  const url = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_INVENTORY}?pageSize=100`;
+  const url = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${encodeURIComponent(AIRTABLE_INVENTORY)}?pageSize=100`;
   const resp = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
   if (!resp.ok) return {};
   const data = await resp.json();

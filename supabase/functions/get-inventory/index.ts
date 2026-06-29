@@ -7,7 +7,7 @@ const CORS = {
 };
 
 const BASE = "appoSOvq7flVkIase";
-const TABLE = "Shop%20Inventory";
+const TABLE = "Shop Inventory";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
@@ -20,12 +20,14 @@ serve(async (req) => {
       });
     }
 
+    const tableEncoded = encodeURIComponent(TABLE);
+
     // Fetch all inventory records
     let allRecords: any[] = [];
     let offset: string | null = null;
 
     do {
-      const url = `https://api.airtable.com/v0/${BASE}/${TABLE}?pageSize=100${offset ? `&offset=${offset}` : ""}`;
+      const url = `https://api.airtable.com/v0/${BASE}/${tableEncoded}?pageSize=100${offset ? `&offset=${offset}` : ""}`;
       const resp = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
