@@ -79,7 +79,8 @@ h1 b{color:var(--gold);font-weight:600}
 
 <script>
 var FN_URL = 'https://myymemctdxwizhmwjbyk.supabase.co/functions/v1/update-price';
-var PASSCODE = 'PEPBIO2026';
+var VERIFY_URL = 'https://myymemctdxwizhmwjbyk.supabase.co/functions/v1/verify-inventory-admin';
+var adminPasscode = '';
 
 // Products that need prices (from Airtable — stock > 0, price = 0)
 var PRODUCTS = [
@@ -92,18 +93,29 @@ var PRODUCTS = [
 
 var unlocked = false;
 
-function unlock() {
-  var pw = document.getElementById('pw').value.trim().toUpperCase();
-  if (pw === PASSCODE) {
+async function unlock() {
+  var pw = document.getElementById('pw').value;
+  try {
+    var response = await fetch(VERIFY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ passcode: pw })
+    });
+    if (response.ok) {
+      adminPasscode = pw;
+      document.getElementById('pw').value = '';
     document.getElementById('gate').classList.add('hide');
     document.getElementById('dash').classList.add('show');
     unlocked = true;
     renderForm();
-  } else {
+      return;
+    }
+  } catch (error) {
+    console.error('Admin verification failed', error);
+  }
     document.getElementById('err').style.display = 'block';
     document.getElementById('pw').value = '';
     setTimeout(function() { document.getElementById('err').style.display = 'none'; }, 1500);
-  }
 }
 
 document.getElementById('pw').addEventListener('keydown', function(e) {
@@ -155,7 +167,7 @@ function saveAll() {
         fetch(FN_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sku: p.sku, price: price, passcode: PASSCODE })
+          body: JSON.stringify({ sku: p.sku, price: price, passcode: adminPasscode })
         }).then(function(r) { return r.json(); })
       );
     }

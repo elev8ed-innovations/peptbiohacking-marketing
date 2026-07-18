@@ -1,223 +1,213 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-
 const CATALOG: Record<string, { title: string; price: number }> = {
-  "bpc-tb500":     { title: "BPC-157 / TB-500", price: 3700 },
-  "glp3-12":       { title: "GLP-3 12mg", price: 3900 },
-  "glp3-24":       { title: "GLP-3 24mg", price: 5400 },
-  "glp3-48":       { title: "GLP-3 48mg", price: 7400 },
-  "motsc-10":      { title: "MOTS-C 10mg", price: 3900 },
-  "tesa-ipa":      { title: "Tesamorelin / Ipamorelin", price: 4400 },
-  "dsip-10":       { title: "DSIP 10mg", price: 3700 },
-  "semax-10":      { title: "Semax / Selank", price: 3700 },
-  "glow-70":       { title: "GLOW Protocol 70mg", price: 4900 },
+  "bpc-tb500": { title: "BPC-157 / TB-500", price: 3700 },
+  "glp3-12": { title: "GLP-3 12mg", price: 3900 },
+  "glp3-24": { title: "GLP-3 24mg", price: 5400 },
+  "glp3-48": { title: "GLP-3 48mg", price: 7400 },
+  "motsc-10": { title: "MOTS-C 10mg", price: 3900 },
+  "tesa-ipa": { title: "Tesamorelin / Ipamorelin", price: 4400 },
+  "dsip-10": { title: "DSIP 10mg", price: 3700 },
+  "semax-10": { title: "Semax / Selank", price: 3700 },
+  "glow-70": { title: "GLOW Protocol 70mg", price: 4900 },
   "bact-water-30": { title: "Agua Bacteriostatica 30ml", price: 900 },
-  "bact-water-3":  { title: "Agua Bacteriostatica 3ml", price: 300 },
-  "cjc-1295":      { title: "CJC-1295 / Ipamorelin", price: 3900 },
-  "epitalon":      { title: "Epitalon 10mg", price: 3400 },
-  "pt141":         { title: "PT-141 10mg", price: 3400 },
-  "ghk-cu-50":     { title: "GHK-Cu 50mg", price: 3400 },
-  "ghk-cu-100":    { title: "GHK-Cu 100mg", price: 3700 },
-  "nad-buffered":  { title: "NAD+ Buffered", price: 4100 },
-  "bpc-tb500-10":  { title: "BPC-157/TB-500 10mg/10mg", price: 4900 },
+  "bact-water-3": { title: "Agua Bacteriostatica 3ml", price: 300 },
+  "cjc-1295": { title: "CJC-1295 / Ipamorelin", price: 3900 },
+  "epitalon": { title: "Epitalon 10mg", price: 3400 },
+  "pt141": { title: "PT-141 10mg", price: 3400 },
+  "ghk-cu-50": { title: "GHK-Cu 50mg", price: 3400 },
+  "ghk-cu-100": { title: "GHK-Cu 100mg", price: 3700 },
+  "nad-buffered": { title: "NAD+ Buffered", price: 4100 },
+  "bpc-tb500-10": { title: "BPC-157/TB-500 10mg/10mg", price: 4900 },
   "kisspeptin-10": { title: "Kisspeptin 10mg", price: 3400 },
-  "igf1-lr3-100":  { title: "IGF-1 LR3 100mg", price: 0 },
+  "igf1-lr3-100": { title: "IGF-1 LR3 100mg", price: 0 },
 };
 
 const SITE = "https://peptbiohacking.com";
 const AIRTABLE_BASE = "appoSOvq7flVkIase";
 const AIRTABLE_INVENTORY = "Shop Inventory";
-const AIRTABLE_ORDERS = "Ordenes";
-
 const CONSULT_PRICE = 1500;
+const ALLOWED_ORIGINS = new Set([SITE, "https://www.peptbiohacking.com"]);
 
-const NOTIFY_EMAIL = "arianarecreo@gmail.com";
-const FROM_EMAIL = "pedidos@peptbiohacking.com";
+type OrderItem = { sku: string; title: string; price: number; qty: number };
+type Shipping = {
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+};
+
+function corsHeaders(req: Request): Record<string, string> {
+  const origin = req.headers.get("origin") || SITE;
+  return {
+    "Access-Control-Allow-Origin": ALLOWED_ORIGINS.has(origin) ? origin : SITE,
+    "Access-Control-Allow-Headers": "content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    Vary: "Origin",
+  };
+}
+
+function json(req: Request, body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders(req), "Content-Type": "application/json" },
+  });
+}
+
+function clean(value: unknown, maxLength: number): string {
+  return String(value ?? "").trim().slice(0, maxLength);
+}
+
+function validEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
 
 async function fetchInventory(): Promise<Record<string, { stock: number; status: string; price: number }>> {
   const token = Deno.env.get("AIRTABLE_TOKEN");
-  if (!token) return {};
+  if (!token) throw new Error("AIRTABLE_TOKEN is not configured");
+
   const url = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${encodeURIComponent(AIRTABLE_INVENTORY)}?pageSize=100`;
-  const resp = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-  if (!resp.ok) return {};
-  const data = await resp.json();
-  const inv: Record<string, { stock: number; status: string; price: number }> = {};
-  for (const rec of data.records || []) {
-    const f = rec.fields || {};
-    const sku = f.SKU;
-    if (sku) {
-      inv[sku] = {
-        stock: Number(f.Stock) || 0,
-        status: f.Status || "Out of Stock",
-        price: Number(f["Price MXN"]) || 0,
+  const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  if (!response.ok) throw new Error(`Airtable inventory failed: ${response.status}`);
+
+  const data = await response.json();
+  const inventory: Record<string, { stock: number; status: string; price: number }> = {};
+  for (const record of data.records || []) {
+    const fields = record.fields || {};
+    if (fields.SKU) {
+      inventory[fields.SKU] = {
+        stock: Number(fields.Stock) || 0,
+        status: fields.Status || "Out of Stock",
+        price: Number(fields["Price MXN"]) || 0,
       };
     }
   }
-  return inv;
+  return inventory;
 }
 
 function effectivePrice(sku: string, airtablePrice: number): number {
-  if (airtablePrice > 0) return airtablePrice;
-  return CATALOG[sku]?.price || 0;
+  return airtablePrice > 0 ? airtablePrice : CATALOG[sku]?.price || 0;
 }
 
-function orderSummary(orderItems: Array<{ title: string; price: number; qty: number }>): string {
-  return orderItems.map(i => `  • ${i.title} x${i.qty} = $${(i.price * i.qty).toLocaleString()} MXN`).join("\n");
+function supabaseConfig(): { url: string; key: string } {
+  const url = Deno.env.get("SUPABASE_URL") || "";
+  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+  if (!url || !key) throw new Error("Supabase service credentials are not configured");
+  return { url, key };
 }
 
-async function sendEmail(params: { to: string; subject: string; html: string }): Promise<void> {
-  const apiKey = Deno.env.get("RESEND_API_KEY");
-  if (!apiKey) {
-    console.warn("RESEND_API_KEY not set, skipping email");
-    return;
+async function createOrder(payload: Record<string, unknown>): Promise<{ public_id: string }> {
+  const { url, key } = supabaseConfig();
+  const response = await fetch(`${url}/rest/v1/orders?select=public_id`, {
+    method: "POST",
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json",
+      Prefer: "return=representation",
+    },
+    body: JSON.stringify(payload),
+  });
+  const rows = await response.json();
+  if (!response.ok || !rows?.[0]?.public_id) {
+    console.error("Order insert failed", response.status, JSON.stringify(rows));
+    throw new Error("No se pudo registrar el pedido");
   }
-  try {
-    const resp = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: FROM_EMAIL,
-        to: [params.to],
-        subject: params.subject,
-        html: params.html,
-      }),
-    });
-    if (!resp.ok) {
-      const err = await resp.text();
-      console.warn("Resend error:", err);
-    } else {
-      console.log(`Email sent to ${params.to}`);
-    }
-  } catch (e) {
-    console.warn("Email send failed:", e);
-  }
+  return rows[0];
 }
 
-async function sendNotifications(
-  orderItems: Array<{ sku: string; title: string; price: number; qty: number }>,
-  shipping: { name: string; phone: string; email: string; address: string; city: string; state: string; zip: string },
-  finalTotal: number,
-  upsell: boolean,
-): Promise<void> {
-  const summary = orderSummary(orderItems);
-  const itemsTotal = orderItems.reduce((s, i) => s + i.price * i.qty, 0);
-
-  // 1. Notify Dr. V / clinic
-  const drHtml = `
-<h2>🛒 Nuevo Pedido — PeptBiohacking</h2>
-<table style="width:100%;border-collapse:collapse;font-family:sans-serif;">
-<tr style="background:#f5f4f0;"><td style="padding:10px;font-weight:600;width:120px;">Cliente</td><td style="padding:10px;">${shipping.name}</td></tr>
-<tr><td style="padding:10px;font-weight:600;">Teléfono</td><td style="padding:10px;">${shipping.phone}</td></tr>
-<tr style="background:#f5f4f0;"><td style="padding:10px;font-weight:600;">Email</td><td style="padding:10px;">${shipping.email}</td></tr>
-<tr><td style="padding:10px;font-weight:600;">Dirección</td><td style="padding:10px;">${shipping.address}, ${shipping.city}, ${shipping.state} ${shipping.zip}</td></tr>
-</table>
-<h3>Productos</h3>
-<pre style="font-family:monospace;background:#f9f9f9;padding:12px;border-radius:6px;">${summary}</pre>
-<p><strong>Subtotal:</strong> $${itemsTotal.toLocaleString()} MXN<br>
-${upsell ? `<strong>Consulta Dr. V:</strong> +$${CONSULT_PRICE.toLocaleString()} MXN<br>` : ""}
-<strong>Total:</strong> <span style="font-size:18px;color:#2A7C6F;">$${finalTotal.toLocaleString()} MXN</span></p>
-<hr>
-<p style="color:#888;font-size:12px;">Revisa el pedido y confirma disponibilidad con el cliente.</p>`;
-
-  // 2. Customer confirmation
-  const customerHtml = `
-<h2>✅ Gracias por tu pedido, ${shipping.name.split(" ")[0]}.</h2>
-<p>Hemos recibido tu pedido correctamente. El <strong>Dr. Fernando Valenzuela</strong> revisará tu perfil y te confirmará los detalles en las próximas horas.</p>
-<h3>Resumen</h3>
-<pre style="font-family:monospace;background:#f9f9f9;padding:12px;border-radius:6px;">${summary}</pre>
-<p><strong>Total:</strong> $${finalTotal.toLocaleString()} MXN</p>
-<hr>
-<p style="color:#888;font-size:13px;">¿Tienes dudas? Escríbenos por WhatsApp al <strong>+52 662 424 2441</strong> o responde a este correo.</p>`;
-
-  await Promise.all([
-    sendEmail({ to: NOTIFY_EMAIL, subject: `🛒 Nuevo Pedido — ${shipping.name}`, html: drHtml }),
-    sendEmail({ to: shipping.email, subject: "✅ Recibimos tu pedido — PeptBiohacking", html: customerHtml }),
-  ]);
+async function updateOrder(publicId: string, patch: Record<string, unknown>): Promise<void> {
+  const { url, key } = supabaseConfig();
+  const response = await fetch(`${url}/rest/v1/orders?public_id=eq.${encodeURIComponent(publicId)}`, {
+    method: "PATCH",
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(patch),
+  });
+  if (!response.ok) throw new Error(`Order update failed: ${response.status}`);
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders(req) });
+  if (req.method !== "POST") return json(req, { error: "Metodo no permitido" }, 405);
+
+  const origin = req.headers.get("origin");
+  if (origin && !ALLOWED_ORIGINS.has(origin)) return json(req, { error: "Origen no permitido" }, 403);
+
   try {
+    const accessToken = Deno.env.get("MP_ACCESS_TOKEN");
+    if (!accessToken) throw new Error("MP_ACCESS_TOKEN is not configured");
+
     const body = await req.json();
-    const { items, shipping, upsell } = body;
-
-    if (!items || !Array.isArray(items) || items.length === 0) {
-      return new Response(JSON.stringify({ error: "Carrito vacio" }), {
-        status: 400, headers: { ...CORS, "Content-Type": "application/json" },
-      });
-    }
-    if (!shipping || !shipping.name || !shipping.email || !shipping.phone) {
-      return new Response(JSON.stringify({ error: "Datos de envio incompletos" }), {
-        status: 400, headers: { ...CORS, "Content-Type": "application/json" },
-      });
+    const entries = body.items;
+    if (!Array.isArray(entries) || entries.length === 0 || entries.length > 20) {
+      return json(req, { error: "Carrito invalido" }, 400);
     }
 
-    // Validate items
-    const orderItems: Array<{ sku: string; title: string; price: number; qty: number }> = [];
-    for (const entry of items) {
-      const sku = entry.sku;
-      const cat = CATALOG[sku];
-      if (!cat) {
-        return new Response(JSON.stringify({ error: `SKU desconocido: ${sku}` }), {
-          status: 400, headers: { ...CORS, "Content-Type": "application/json" },
-        });
-      }
-      const qty = Math.max(1, Math.min(10, Number(entry.quantity) || 1));
-      orderItems.push({ sku, title: cat.title, price: cat.price, qty });
+    const shipping: Shipping = {
+      name: clean(body.shipping?.name, 120),
+      phone: clean(body.shipping?.phone, 40),
+      email: clean(body.shipping?.email, 180).toLowerCase(),
+      address: clean(body.shipping?.address, 240),
+      city: clean(body.shipping?.city ?? body.shipping?.ciudad, 100),
+      state: clean(body.shipping?.state, 100),
+      zip: clean(body.shipping?.zip, 20),
+    };
+    if (!shipping.name || !shipping.phone || !validEmail(shipping.email) || !shipping.address || !shipping.city) {
+      return json(req, { error: "Datos de envio incompletos" }, 400);
     }
 
-    // Fetch Airtable for stock + prices
     const inventory = await fetchInventory();
-    for (const item of orderItems) {
-      const inv = inventory[item.sku];
-      const airPrice = inv ? inv.price : 0;
-      item.price = effectivePrice(item.sku, airPrice);
+    const orderItems: OrderItem[] = [];
+    for (const entry of entries) {
+      const sku = clean(entry?.sku, 80);
+      const catalogItem = CATALOG[sku];
+      if (!catalogItem) return json(req, { error: `SKU desconocido: ${sku}` }, 400);
 
-      if (item.price === 0) {
-        return new Response(JSON.stringify({
-          error: `${item.title} no tiene precio asignado. Consulta a Dr. Valenzuela.`,
-          sku: item.sku,
-        }), { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
+      const qty = Math.max(1, Math.min(10, Math.floor(Number(entry.quantity) || 1)));
+      const available = inventory[sku];
+      const price = effectivePrice(sku, available?.price || 0);
+      if (price <= 0) return json(req, { error: `${catalogItem.title} no tiene precio asignado`, sku }, 400);
+      if (!available || available.status === "Out of Stock" || available.status === "Discontinued") {
+        return json(req, { error: `${catalogItem.title} esta agotado`, sku, stock: 0 }, 409);
       }
-
-      if (inv) {
-        if (inv.status === "Out of Stock" || inv.status === "Discontinued") {
-          return new Response(JSON.stringify({
-            error: `${item.title} esta agotado.`,
-            sku: item.sku, stock: 0,
-          }), { status: 409, headers: { ...CORS, "Content-Type": "application/json" } });
-        }
-        if (inv.stock < item.qty) {
-          return new Response(JSON.stringify({
-            error: `Solo tenemos ${inv.stock} de ${item.title}.`,
-            sku: item.sku, stock: inv.stock,
-          }), { status: 409, headers: { ...CORS, "Content-Type": "application/json" } });
-        }
+      if (available.stock < qty) {
+        return json(req, { error: `Solo tenemos ${available.stock} de ${catalogItem.title}`, sku, stock: available.stock }, 409);
       }
+      orderItems.push({ sku, title: catalogItem.title, price, qty });
     }
 
-    // Build totals
-    const itemsTotal = orderItems.reduce((s, i) => s + i.price * i.qty, 0);
+    const upsell = body.upsell === true;
+    const itemsTotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
     const finalTotal = itemsTotal + (upsell ? CONSULT_PRICE : 0);
-    const upsellLabel = upsell ? "Si - Consulta 30min Dr.V" : "No";
 
-    // Create MP preference
-    const mpItems = orderItems.map((i) => ({
-      id: i.sku,
-      title: i.title,
-      quantity: i.qty,
+    const order = await createOrder({
+      customer_name: shipping.name,
+      phone: shipping.phone,
+      email: shipping.email,
+      address: shipping.address,
+      city: shipping.city,
+      state: shipping.state,
+      zip: shipping.zip,
+      products: orderItems,
+      total: finalTotal,
+      upsell,
+      status: "creating_payment",
+    });
+
+    const mpItems: Array<Record<string, unknown>> = orderItems.map((item) => ({
+      id: item.sku,
+      title: item.title,
+      quantity: item.qty,
       currency_id: "MXN",
-      unit_price: i.price,
+      unit_price: item.price,
     }));
-
     if (upsell) {
       mpItems.push({
         id: "consulta-drv",
@@ -228,79 +218,45 @@ serve(async (req) => {
       });
     }
 
-    const skus = orderItems.map((i) => i.sku).join("-");
-    const pref = {
+    const returnQuery = `order=${encodeURIComponent(order.public_id)}`;
+    const preference = {
       items: mpItems,
+      payer: { name: shipping.name, email: shipping.email },
       back_urls: {
-        success: `${SITE}/checkout.html?status=success`,
-        pending: `${SITE}/checkout.html?status=pending`,
-        failure: `${SITE}/checkout.html?status=failure`,
+        success: `${SITE}/checkout.html?status=success&${returnQuery}`,
+        pending: `${SITE}/checkout.html?status=pending&${returnQuery}`,
+        failure: `${SITE}/checkout.html?status=failure&${returnQuery}`,
       },
+      notification_url: `${Deno.env.get("SUPABASE_URL")}/functions/v1/mp-webhook`,
       auto_return: "approved",
       statement_descriptor: "PEPTBIOHACKING",
-      external_reference: `${skus}-${Date.now()}`,
+      external_reference: order.public_id,
     };
 
-    const mpRes = await fetch("https://api.mercadopago.com/checkout/preferences", {
+    const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${Deno.env.get("MP_ACCESS_TOKEN")}`,
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
+        "X-Idempotency-Key": `preference-${order.public_id}`,
       },
-      body: JSON.stringify(pref),
+      body: JSON.stringify(preference),
     });
-
-    const data = await mpRes.json();
-    if (!mpRes.ok) {
-      console.error("MP error:", JSON.stringify(data));
-      return new Response(JSON.stringify({ error: data.message || "Error creando preferencia" }), {
-        status: 502, headers: { ...CORS, "Content-Type": "application/json" },
-      });
+    const mpData = await mpResponse.json();
+    if (!mpResponse.ok || !mpData.id || !mpData.init_point) {
+      console.error("Mercado Pago preference failed", mpResponse.status, JSON.stringify(mpData));
+      await updateOrder(order.public_id, { status: "payment_setup_failed" });
+      return json(req, { error: "No se pudo iniciar Mercado Pago" }, 502);
     }
 
-    // Save order to Supabase (we own this data)
-    try {
-      const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
-      const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-      if (supabaseUrl && supabaseKey) {
-        const orderPayload = {
-          customer_name: shipping.name,
-          phone: shipping.phone,
-          email: shipping.email,
-          address: shipping.address || "",
-          city: shipping.city || "",
-          state: shipping.state || "",
-          zip: shipping.zip || "",
-          products: orderItems.map(i => ({ sku: i.sku, title: i.title, price: i.price, qty: i.qty })),
-          total: finalTotal,
-          upsell: upsell ?? false,
-          mp_preference_id: data.id || "",
-          status: "pending",
-        };
-        await fetch(`${supabaseUrl}/rest/v1/orders`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "apikey": supabaseKey,
-            "Authorization": `Bearer ${supabaseKey}`,
-          },
-          body: JSON.stringify(orderPayload),
-        });
-      }
-    } catch (_e) {
-      console.warn("Supabase save failed, continuing");
-    }
-
-    // Send notification emails (fire-and-forget)
-    sendNotifications(orderItems, shipping, finalTotal, upsell ?? false);
-
-    return new Response(JSON.stringify({ init_point: data.init_point }), {
-      status: 200, headers: { ...CORS, "Content-Type": "application/json" },
+    await updateOrder(order.public_id, {
+      mp_preference_id: mpData.id,
+      status: "pending_payment",
     });
-  } catch (e) {
-    console.error("Handler error:", e);
-    return new Response(JSON.stringify({ error: "Solicitud invalida" }), {
-      status: 400, headers: { ...CORS, "Content-Type": "application/json" },
-    });
+
+    return json(req, { init_point: mpData.init_point, order_id: order.public_id });
+  } catch (error) {
+    console.error("submit-order error", error);
+    return json(req, { error: "No se pudo procesar el pedido. Intenta de nuevo." }, 500);
   }
 });

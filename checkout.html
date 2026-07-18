@@ -302,9 +302,9 @@ nav{
       <div class="check-circle">
         <svg viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" width="34" height="34"><path d="M20 6L9 17l-5-5"/></svg>
       </div>
-      <h2>Gracias por tu <em>confianza</em></h2>
+      <h2>Pago <em>confirmado</em></h2>
       <p class="sub">
-        Hemos recibido tu pedido correctamente. El Dr. Valenzuela revisara tu perfil y te confirmara los detalles en las proximas horas.
+        Mercado Pago confirmo tu pago y recibimos tu pedido correctamente. El Dr. Valenzuela revisara tu perfil y te confirmara los detalles en las proximas horas.
       </p>
       <div class="tracking-note">
         Recibiras tu numero de seguimiento por correo o WhatsApp en cuanto procesemos tu pedido. Mantente atento a tus notificaciones.
@@ -434,7 +434,7 @@ function submitOrder() {
     phone: phone,
     email: email,
     address: address,
-    ciudad: city,
+    city: city,
     state: document.getElementById('ship-state').value,
     zip: document.getElementById('ship-zip').value.trim(),
   };
@@ -453,8 +453,7 @@ function submitOrder() {
   .then(function(d) {
     document.getElementById('loading').classList.remove('show');
     if (d.init_point) {
-      // Clear cart from session
-      sessionStorage.removeItem('peptbio_cart');
+      sessionStorage.setItem('peptbio_last_order', d.order_id || '');
       window.location.href = d.init_point;
     } else {
       throw new Error(d.error || 'Error al procesar el pago');
@@ -469,37 +468,69 @@ function submitOrder() {
   });
 }
 
-// ── MP RETURN HANDLING ──
-(function() {
+function showStatusCard(icon, title, message, linkLabel) {
+  document.getElementById('checkout-form').innerHTML =
+    '<div class="card" style="max-width:480px;margin:40px auto"><div class="status-msg">' +
+    '<div class="icon">' + icon + '</div>' +
+    '<h2>' + title + '</h2>' +
+    '<p>' + message + '</p>' +
+    '<a href="shop.html" style="color:var(--teal);font-weight:600">' + linkLabel + '</a></div></div>';
+}
+
+function wait(ms) {
+  return new Promise(function(resolve) { setTimeout(resolve, ms); });
+}
+
+async function verifiedPaymentStatus(orderId) {
+  var endpoint = 'https://myymemctdxwizhmwjbyk.supabase.co/functions/v1/payment-status?order=' + encodeURIComponent(orderId);
+  for (var attempt = 0; attempt < 8; attempt++) {
+    try {
+      var response = await fetch(endpoint, { method: 'GET' });
+      var data = await response.json();
+      if (response.ok && data.status === 'paid') return 'paid';
+      if (response.ok && ['payment_rejected', 'cancelled', 'refunded', 'charged_back'].indexOf(data.status) !== -1) {
+        return data.status;
+      }
+    } catch (error) {
+      console.warn('Payment verification retry', error);
+    }
+    if (attempt < 7) await wait(1500);
+  }
+  return 'pending';
+}
+
+// Mercado Pago's return URL is informational only. The signed server webhook is
+// the source of truth, so the page asks our server before showing confirmation.
+(async function() {
   var params = new URLSearchParams(window.location.search);
   var status = params.get('status');
-  var collection = params.get('collection_id');
+  var orderId = params.get('order') || sessionStorage.getItem('peptbio_last_order');
   if (!status) return;
 
-  if (status === 'success') {
+  if (!orderId) {
+    showStatusCard('⏳', 'Verificando tu pago', 'No pudimos identificar el pedido en esta pagina. No vuelvas a pagar. Contactanos por WhatsApp para verificarlo.', 'Volver a tienda');
+    return;
+  }
+
+  showStatusCard('⏳', 'Verificando tu pago', 'Estamos confirmando el resultado directamente con Mercado Pago. Esto puede tomar unos segundos.', 'Volver a tienda');
+  var verified = await verifiedPaymentStatus(orderId);
+
+  if (verified === 'paid') {
+    sessionStorage.removeItem('peptbio_cart');
+    sessionStorage.removeItem('peptbio_last_order');
     document.getElementById('checkout-form').style.display = 'none';
     document.getElementById('thankyou').classList.add('show');
     if (window.history && window.history.replaceState) {
       window.history.replaceState({}, '', window.location.pathname);
     }
-  } else if (status === 'pending') {
-    document.getElementById('checkout-form').innerHTML = 
-      '<div class="card" style="max-width:480px;margin:40px auto"><div class="status-msg">' +
-      '<div class="icon">⏳</div>' +
-      '<h2>Pago en proceso</h2>' +
-      '<p>Tu pago esta siendo procesado. Te confirmaremos por WhatsApp en cuanto se acredite.</p>' +
-      '<a href="shop.html" style="color:var(--teal);font-weight:600">Volver a tienda</a></div></div>';
-  } else if (status === 'failure') {
-    document.getElementById('checkout-form').innerHTML = 
-      '<div class="card" style="max-width:480px;margin:40px auto"><div class="status-msg">' +
-      '<div class="icon">❌</div>' +
-      '<h2>Pago no completado</h2>' +
-      '<p>El pago no se pudo completar. Puedes intentarlo de nuevo o contactarnos por WhatsApp.</p>' +
-      '<a href="shop.html" style="color:var(--teal);font-weight:600">Intentar de nuevo</a></div></div>';
+  } else if (verified === 'pending') {
+    showStatusCard('⏳', 'Pago en proceso', 'Todavia no tenemos una confirmacion final. No vuelvas a pagar. Te avisaremos por correo o WhatsApp en cuanto se acredite.', 'Volver a tienda');
+  } else {
+    showStatusCard('❌', 'Pago no completado', 'Mercado Pago no acredito este pago. Puedes volver a la tienda o contactarnos por WhatsApp si tienes dudas.', 'Volver a tienda');
   }
 })();
 
-renderOrder();
+if (!new URLSearchParams(window.location.search).get('status')) renderOrder();
 </script>
 </body>
 </html>

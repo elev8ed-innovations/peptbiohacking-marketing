@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { isInventoryAdmin } from "../_shared/admin-auth.ts";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -14,7 +15,7 @@ serve(async (req) => {
 
   try {
     const { passcode } = await req.json();
-    if (passcode !== "PEPBIO2026") {
+    if (!isInventoryAdmin(passcode)) {
       return new Response(JSON.stringify({ error: "Código incorrecto" }), {
         status: 401, headers: { ...CORS, "Content-Type": "application/json" },
       });
@@ -70,7 +71,8 @@ serve(async (req) => {
 
   } catch (e) {
     console.error("Setup error:", e);
-    return new Response(JSON.stringify({ error: e.message || "Setup failed" }), {
+    const message = e instanceof Error ? e.message : "Setup failed";
+    return new Response(JSON.stringify({ error: message }), {
       status: 500, headers: { ...CORS, "Content-Type": "application/json" },
     });
   }

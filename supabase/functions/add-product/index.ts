@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { isInventoryAdmin } from "../_shared/admin-auth.ts";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -15,7 +16,7 @@ serve(async (req) => {
   try {
     const { sku, product, stock, price, passcode } = await req.json();
 
-    if (passcode !== "PEPBIO2026") {
+    if (!isInventoryAdmin(passcode)) {
       return new Response(JSON.stringify({ error: "Código incorrecto" }), {
         status: 401, headers: { ...CORS, "Content-Type": "application/json" },
       });

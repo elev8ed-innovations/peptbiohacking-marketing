@@ -4,6 +4,15 @@ verify_jwt = false
 [functions.submit-order]
 verify_jwt = false
 
+[functions.mp-webhook]
+verify_jwt = false
+
+[functions.payment-status]
+verify_jwt = false
+
+[functions.verify-inventory-admin]
+verify_jwt = false
+
 [functions.update-price]
 verify_jwt = false
 

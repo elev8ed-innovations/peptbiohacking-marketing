@@ -302,18 +302,25 @@ td.price{font-family:'JetBrains Mono',monospace;color:var(--muted);font-size:11p
 </main>
 
 <script>
-const PASSWORD="PEPBIO2026";
 const API_URL="https://myymemctdxwizhmwjbyk.supabase.co/functions/v1/get-inventory";
 const ADD_URL="https://myymemctdxwizhmwjbyk.supabase.co/functions/v1/add-product";
 const TICKET_URL="https://myymemctdxwizhmwjbyk.supabase.co/functions/v1/submit-ticket";
-let inventoryData=[],currentFilter="all";
+const VERIFY_URL="https://myymemctdxwizhmwjbyk.supabase.co/functions/v1/verify-inventory-admin";
+let inventoryData=[],currentFilter="all",adminPasscode="";
 
 const gw=document.getElementById('pw'),gate=document.getElementById('gate');
-function tryEnter(){
-  if(gw.value.trim().toUpperCase()===PASSWORD){
+async function tryEnter(){
+  const entered=gw.value;
+  try{
+    const response=await fetch(VERIFY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({passcode:entered})});
+    if(response.ok){
+    adminPasscode=entered;gw.value='';
     gate.classList.remove('denied');gate.classList.add('hidden');
     document.getElementById('dash').classList.add('show');loadInventory();loadTickets();
-  }else{gate.classList.add('denied');gw.value='';setTimeout(()=>gate.classList.remove('denied'),1400);}
+      return;
+    }
+  }catch(error){console.error('Admin verification failed',error);}
+  gate.classList.add('denied');gw.value='';setTimeout(()=>gate.classList.remove('denied'),1400);
 }
 document.getElementById('enterBtn').addEventListener('click',tryEnter);
 gw.addEventListener('keydown',function(e){if(e.key==='Enter')tryEnter();});gw.focus();
@@ -348,7 +355,7 @@ function addProduct(){
   fetch(ADD_URL,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({passcode:PASSWORD,sku:sku,product:name,stock:Number(stock)||0,price:Number(price)||0})
+    body:JSON.stringify({passcode:adminPasscode,sku:sku,product:name,stock:Number(stock)||0,price:Number(price)||0})
   }).then(function(r){return r.json();}).then(function(d){
     if(d.success){
       msg.className='form-msg ok';msg.textContent='✅ '+d.message;msg.style.display='block';
@@ -382,7 +389,7 @@ function submitTicket(){
   fetch(TICKET_URL,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({passcode:PASSWORD,title:title,description:desc,priority:priority,submitter:submitter})
+    body:JSON.stringify({passcode:adminPasscode,title:title,description:desc,priority:priority,submitter:submitter})
   }).then(function(r){return r.json();}).then(function(d){
     if(d.success){
       msg.className='ticket-msg ok';msg.textContent='✅ '+d.message;msg.style.display='block';
