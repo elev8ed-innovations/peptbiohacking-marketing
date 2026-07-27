@@ -32,7 +32,7 @@ const CATALOG: Record<string, { title: string; price: number }> = {
   "igf1-lr3-100":  { title: "IGF-1 LR3 100mg", price: 0 },
 };
 
-const SITE = "https://peptbiohacking.mx";
+const SITE = "https://peptbiohacking.com";
 const AIRTABLE_BASE = "appKo9tyGtIju3UHN";
 const AIRTABLE_TABLE = "Inventario";
 
