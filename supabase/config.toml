@@ -21,3 +21,6 @@ verify_jwt = false
 
 [functions.get-inventory]
 verify_jwt = false
+
+[functions.mercado-pago-webhook]
+verify_jwt = false

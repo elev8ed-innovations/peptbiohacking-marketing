@@ -29,9 +29,9 @@ const CATALOG: Record<string, { title: string; price: number }> = {
   "igf1-lr3-100":  { title: "IGF-1 LR3 100mg", price: 0 },
 };
 
-const SITE = "https://peptbiohacking.com";
-const AIRTABLE_BASE = "appoSOvq7flVkIase";
-const AIRTABLE_INVENTORY = "Shop Inventory";
+const SITE = "https://peptbiohacking.mx";
+const AIRTABLE_BASE = "appKo9tyGtIju3UHN";
+const AIRTABLE_INVENTORY = "Inventario";
 const AIRTABLE_ORDERS = "Ordenes";
 
 const CONSULT_PRICE = 1500;
@@ -39,24 +39,53 @@ const CONSULT_PRICE = 1500;
 const NOTIFY_EMAIL = "arianarecreo@gmail.com";
 const FROM_EMAIL = "pedidos@peptbiohacking.com";
 
+const SKU_BY_PRODUCT: Record<string, string> = {
+  "glp312mg": "glp3-12", "glp324mg": "glp3-24", "glp348mg": "glp3-48",
+  "bpc157tb5005mg5mg": "bpc-tb500", "bpc157tb50010mg10mg": "bpc-tb500-10",
+  "cjc1295ipamorelin5mg5mg": "cjc-1295", "tesamorelinipamorelin": "tesa-ipa",
+  "motsc10mg": "motsc-10", "dsip10mg": "dsip-10", "semaxselank": "semax-10",
+  "glowbpc157tb500ghkcu": "glow-70", "epitalon10mg": "epitalon",
+  "pt14110mg": "pt141", "ghkcu50mg": "ghk-cu-50", "ghkcu100mg": "ghk-cu-100",
+  "nadbuffered": "nad-buffered", "kisspeptin10mg": "kisspeptin-10",
+  "aguabacteriostatica30ml": "bact-water-30", "aguabacteriostatica3ml": "bact-water-3",
+};
+
+function normalize(value: unknown): string {
+  return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function canonicalStatus(value: unknown, stock: number): string {
+  const status = normalize(value);
+  if (status.includes("descontinu") || status.includes("discontinu")) return "Discontinued";
+  if (stock <= 0 || status.includes("agotado") || status.includes("outofstock")) return "Out of Stock";
+  if (status.includes("bajo") || status.includes("lowstock") || stock <= 5) return "Low Stock";
+  return "In Stock";
+}
+
 async function fetchInventory(): Promise<Record<string, { stock: number; status: string; price: number }>> {
-  const token = Deno.env.get("AIRTABLE_TOKEN");
-  if (!token) return {};
-  const url = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${encodeURIComponent(AIRTABLE_INVENTORY)}?pageSize=100`;
-  const resp = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-  if (!resp.ok) return {};
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+  if (!supabaseUrl || !serviceKey) throw new Error("Supabase server credentials unavailable");
+  const resp = await fetch(`${supabaseUrl}/rest/v1/products?select=sku,stock_on_hand,active,price_mxn`, {
+    headers: {
+      apikey: serviceKey,
+      Authorization: `Bearer ${serviceKey}`,
+    },
+  });
+  if (!resp.ok) {
+    const detail = await resp.text();
+    throw new Error(`Supabase inventory fetch failed: ${resp.status} ${detail}`);
+  }
   const data = await resp.json();
   const inv: Record<string, { stock: number; status: string; price: number }> = {};
-  for (const rec of data.records || []) {
-    const f = rec.fields || {};
-    const sku = f.SKU;
-    if (sku) {
-      inv[sku] = {
-        stock: Number(f.Stock) || 0,
-        status: f.Status || "Out of Stock",
-        price: Number(f["Price MXN"]) || 0,
-      };
-    }
+  for (const product of data || []) {
+    const stock = Number(product.stock_on_hand) || 0;
+    inv[product.sku] = {
+      stock,
+      status: !product.active ? "Discontinued" : stock <= 0 ? "Out of Stock" : stock <= 5 ? "Low Stock" : "In Stock",
+      price: Number(product.price_mxn) || 0,
+    };
   }
   return inv;
 }
@@ -175,7 +204,15 @@ serve(async (req) => {
     }
 
     // Fetch Airtable for stock + prices
-    const inventory = await fetchInventory();
+    let inventory: Record<string, { stock: number; status: string; price: number }>;
+    try {
+      inventory = await fetchInventory();
+    } catch (e) {
+      console.error("Inventory unavailable:", e);
+      return new Response(JSON.stringify({ error: "Inventario temporalmente no disponible. Intenta de nuevo." }), {
+        status: 503, headers: { ...CORS, "Content-Type": "application/json" },
+      });
+    }
     for (const item of orderItems) {
       const inv = inventory[item.sku];
       const airPrice = inv ? inv.price : 0;
@@ -188,6 +225,12 @@ serve(async (req) => {
         }), { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
       }
 
+      if (!inv) {
+        return new Response(JSON.stringify({
+          error: `${item.title} no está vinculado al inventario.`,
+          sku: item.sku,
+        }), { status: 409, headers: { ...CORS, "Content-Type": "application/json" } });
+      }
       if (inv) {
         if (inv.status === "Out of Stock" || inv.status === "Discontinued") {
           return new Response(JSON.stringify({
@@ -229,6 +272,7 @@ serve(async (req) => {
     }
 
     const skus = orderItems.map((i) => i.sku).join("-");
+    const orderReference = `${skus}-${crypto.randomUUID()}`;
     const pref = {
       items: mpItems,
       back_urls: {
@@ -238,7 +282,8 @@ serve(async (req) => {
       },
       auto_return: "approved",
       statement_descriptor: "PEPTBIOHACKING",
-      external_reference: `${skus}-${Date.now()}`,
+      external_reference: orderReference,
+      notification_url: `${Deno.env.get("SUPABASE_URL")}/functions/v1/mercado-pago-webhook`,
     };
 
     const mpRes = await fetch("https://api.mercadopago.com/checkout/preferences", {
@@ -275,9 +320,10 @@ serve(async (req) => {
           total: finalTotal,
           upsell: upsell ?? false,
           mp_preference_id: data.id || "",
+          external_reference: orderReference,
           status: "pending",
         };
-        await fetch(`${supabaseUrl}/rest/v1/orders`, {
+        const saveResponse = await fetch(`${supabaseUrl}/rest/v1/orders`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -286,9 +332,15 @@ serve(async (req) => {
           },
           body: JSON.stringify(orderPayload),
         });
+        if (!saveResponse.ok) {
+          throw new Error(`Order save failed: ${saveResponse.status} ${await saveResponse.text()}`);
+        }
       }
-    } catch (_e) {
-      console.warn("Supabase save failed, continuing");
+    } catch (e) {
+      console.error("Supabase save failed:", e);
+      return new Response(JSON.stringify({ error: "No se pudo guardar el pedido. No se realizó ningún cargo." }), {
+        status: 500, headers: { ...CORS, "Content-Type": "application/json" },
+      });
     }
 
     // Send notification emails (fire-and-forget)

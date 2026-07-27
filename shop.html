@@ -1315,41 +1315,19 @@ const CAT_TO_SKU = {
 
 async function applyStockFromAirtable() {
   try {
-    const resp = await fetch('https://peptbiohacking.mx/.netlify/functions/get-inventory');
+    const resp = await fetch('https://myymemctdxwizhmwjbyk.supabase.co/functions/v1/get-inventory');
     const data = await resp.json();
     const stockMap = {};
-    (data.products || []).forEach(function(p) {
-      // Map Airtable name to our internal product name
-      var key = p.peptido.toLowerCase().replace(/[^a-z0-9]/g,'').replace(/\s+/g,'');
-      stockMap[key] = p.stock;
+    (data.inventory || []).forEach(function(p) {
+      if (p.sku) stockMap[p.sku] = p.stock;
     });
 
     // Apply to product cards
     document.querySelectorAll('.pcard').forEach(function(card) {
       var cat = card.getAttribute('data-cat');
       // Map category to expected stock lookup key
-      var lookup = cat;
-      // Convert GLP-3 variants properly
-      if (cat === 'glp3') lookup = 'glp312mg';
-      else if (cat === 'glp3-24') lookup = 'glp324mg';
-      else if (cat === 'glp3-48') lookup = 'glp348mg';
-      else if (cat === 'bpc') lookup = 'bpc157tb5005mg5mg';
-      else if (cat === 'bpc-10') lookup = 'bpc157tb50010mg10mg';
-      else if (cat === 'cjc') lookup = 'cjc1295ipamorelin5mg5mg';
-      else if (cat === 'tesa') lookup = 'tesamorelinipamorelin';
-      else if (cat === 'motsc') lookup = 'motsc10mg';
-      else if (cat === 'semax') lookup = 'semaxselank';
-      else if (cat === 'glow') lookup = 'glowbpc157tb500ghkcu';
-      else if (cat === 'ghk' || cat === 'ghk-100') lookup = 'ghkcu';
-      else if (cat === 'kisspeptin') lookup = 'kisspeptin10mg';
-      else if (cat === 'nad') lookup = 'nadbuffered';
-      else if (cat === 'epitalon') lookup = 'epitalon10mg';
-      else if (cat === 'pt141') lookup = 'pt14110mg';
-      else if (cat === 'dsip') lookup = 'dsip10mg';
-      else if (cat === 'bact-water') lookup = 'aguabacteriostatica30ml';
-      else if (cat === 'bact-water-3') lookup = 'aguabacteriostatica3ml';
-
-      var stock = stockMap[lookup];
+      var sku = CAT_TO_SKU[cat];
+      var stock = stockMap[sku];
       if (stock === undefined) return; // no data, keep as-is
       
       var btn = card.querySelector('button[data-sku]');

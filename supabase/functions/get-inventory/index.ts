@@ -6,73 +6,49 @@ const CORS = {
   "Access-Control-Allow-Methods": "GET, OPTIONS",
 };
 
-const BASE = "appoSOvq7flVkIase";
-const TABLE = "Shop Inventory";
-
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 
   try {
-    const token = Deno.env.get("AIRTABLE_TOKEN");
-    if (!token) {
-      return new Response(JSON.stringify({ error: "Inventory unavailable" }), {
-        status: 500, headers: { ...CORS, "Content-Type": "application/json" },
-      });
-    }
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    const response = await fetch(
+      `${supabaseUrl}/rest/v1/products?select=sku,name,unit,price_mxn,stock_on_hand,low_stock_threshold,active&order=name`,
+      { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
+    );
+    if (!response.ok) throw new Error(`Inventory query failed: ${response.status}`);
 
-    const tableEncoded = encodeURIComponent(TABLE);
+    const products = await response.json();
+    const inventory = products.map((product: any) => ({
+      sku: product.sku,
+      product: product.name,
+      unit: product.unit,
+      stock: Number(product.stock_on_hand) || 0,
+      lowAlert: Number(product.low_stock_threshold) || 5,
+      status: !product.active ? "Discontinued"
+        : product.stock_on_hand <= 0 ? "Out of Stock"
+        : product.stock_on_hand <= product.low_stock_threshold ? "Low Stock"
+        : "In Stock",
+      price: Number(product.price_mxn) || 0,
+    }));
 
-    // Fetch all inventory records
-    let allRecords: any[] = [];
-    let offset: string | null = null;
-
-    do {
-      const url = `https://api.airtable.com/v0/${BASE}/${tableEncoded}?pageSize=100${offset ? `&offset=${offset}` : ""}`;
-      const resp = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!resp.ok) {
-        return new Response(JSON.stringify({ error: "Airtable fetch failed" }), {
-          status: 502, headers: { ...CORS, "Content-Type": "application/json" },
-        });
-      }
-      const data = await resp.json();
-      allRecords = allRecords.concat(data.records || []);
-      offset = data.offset || null;
-    } while (offset);
-
-    // Transform to clean output
-    const inventory = allRecords.map((r) => {
-      const f = r.fields || {};
-      return {
-        sku: f.SKU || "",
-        product: f.Product || "",
-        stock: Number(f.Stock) || 0,
-        lowAlert: Number(f["Low Stock Alert"]) || 5,
-        status: f.Status || "Out of Stock",
-        price: f["Price MXN"] || 0,
-      };
-    });
-
-    // Stats summary
-    const totalSKUs = inventory.length;
-    const inStock = inventory.filter((i) => i.status === "In Stock").length;
-    const lowStock = inventory.filter((i) => i.status === "Low Stock").length;
-    const outOfStock = inventory.filter((i) => i.status === "Out of Stock" || i.status === "Discontinued").length;
-    const totalUnits = inventory.reduce((s, i) => s + i.stock, 0);
-
+    const active = inventory.filter((item: any) => item.status !== "Discontinued");
     return new Response(JSON.stringify({
       inventory,
-      summary: { totalSKUs, inStock, lowStock, outOfStock, totalUnits },
+      summary: {
+        totalSKUs: active.length,
+        inStock: active.filter((item: any) => item.status === "In Stock").length,
+        lowStock: active.filter((item: any) => item.status === "Low Stock").length,
+        outOfStock: active.filter((item: any) => item.status === "Out of Stock").length,
+        totalUnits: active.reduce((sum: number, item: any) => sum + item.stock, 0),
+      },
       updated: new Date().toISOString(),
-    }), {
-      status: 200,
+    }), { headers: { ...CORS, "Content-Type": "application/json" } });
+  } catch (error) {
+    console.error("Inventory fetch error:", error);
+    return new Response(JSON.stringify({ error: "Inventory unavailable" }), {
+      status: 500,
       headers: { ...CORS, "Content-Type": "application/json" },
-    });
-  } catch (e) {
-    console.error("Inventory fetch error:", e);
-    return new Response(JSON.stringify({ error: "Internal error" }), {
-      status: 500, headers: { ...CORS, "Content-Type": "application/json" },
     });
   }
 });
