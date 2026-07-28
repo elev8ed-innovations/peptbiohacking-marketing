@@ -36,9 +36,6 @@ const AIRTABLE_ORDERS = "Ordenes";
 
 const CONSULT_PRICE = 1500;
 
-const NOTIFY_EMAIL = "arianarecreo@gmail.com";
-const FROM_EMAIL = "pedidos@peptbiohacking.com";
-
 const SKU_BY_PRODUCT: Record<string, string> = {
   "glp312mg": "glp3-12", "glp324mg": "glp3-24", "glp348mg": "glp3-48",
   "bpc157tb5005mg5mg": "bpc-tb500", "bpc157tb50010mg10mg": "bpc-tb500-10",
@@ -93,83 +90,6 @@ async function fetchInventory(): Promise<Record<string, { stock: number; status:
 function effectivePrice(sku: string, airtablePrice: number): number {
   if (airtablePrice > 0) return airtablePrice;
   return CATALOG[sku]?.price || 0;
-}
-
-function orderSummary(orderItems: Array<{ title: string; price: number; qty: number }>): string {
-  return orderItems.map(i => `  • ${i.title} x${i.qty} = $${(i.price * i.qty).toLocaleString()} MXN`).join("\n");
-}
-
-async function sendEmail(params: { to: string; subject: string; html: string }): Promise<void> {
-  const apiKey = Deno.env.get("RESEND_API_KEY");
-  if (!apiKey) {
-    console.warn("RESEND_API_KEY not set, skipping email");
-    return;
-  }
-  try {
-    const resp = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: FROM_EMAIL,
-        to: [params.to],
-        subject: params.subject,
-        html: params.html,
-      }),
-    });
-    if (!resp.ok) {
-      const err = await resp.text();
-      console.warn("Resend error:", err);
-    } else {
-      console.log(`Email sent to ${params.to}`);
-    }
-  } catch (e) {
-    console.warn("Email send failed:", e);
-  }
-}
-
-async function sendNotifications(
-  orderItems: Array<{ sku: string; title: string; price: number; qty: number }>,
-  shipping: { name: string; phone: string; email: string; address: string; city: string; state: string; zip: string },
-  finalTotal: number,
-  upsell: boolean,
-): Promise<void> {
-  const summary = orderSummary(orderItems);
-  const itemsTotal = orderItems.reduce((s, i) => s + i.price * i.qty, 0);
-
-  // 1. Notify Dr. V / clinic
-  const drHtml = `
-<h2>🛒 Nuevo Pedido — PeptBiohacking</h2>
-<table style="width:100%;border-collapse:collapse;font-family:sans-serif;">
-<tr style="background:#f5f4f0;"><td style="padding:10px;font-weight:600;width:120px;">Cliente</td><td style="padding:10px;">${shipping.name}</td></tr>
-<tr><td style="padding:10px;font-weight:600;">Teléfono</td><td style="padding:10px;">${shipping.phone}</td></tr>
-<tr style="background:#f5f4f0;"><td style="padding:10px;font-weight:600;">Email</td><td style="padding:10px;">${shipping.email}</td></tr>
-<tr><td style="padding:10px;font-weight:600;">Dirección</td><td style="padding:10px;">${shipping.address}, ${shipping.city}, ${shipping.state} ${shipping.zip}</td></tr>
-</table>
-<h3>Productos</h3>
-<pre style="font-family:monospace;background:#f9f9f9;padding:12px;border-radius:6px;">${summary}</pre>
-<p><strong>Subtotal:</strong> $${itemsTotal.toLocaleString()} MXN<br>
-${upsell ? `<strong>Consulta Dr. V:</strong> +$${CONSULT_PRICE.toLocaleString()} MXN<br>` : ""}
-<strong>Total:</strong> <span style="font-size:18px;color:#2A7C6F;">$${finalTotal.toLocaleString()} MXN</span></p>
-<hr>
-<p style="color:#888;font-size:12px;">Revisa el pedido y confirma disponibilidad con el cliente.</p>`;
-
-  // 2. Customer confirmation
-  const customerHtml = `
-<h2>✅ Gracias por tu pedido, ${shipping.name.split(" ")[0]}.</h2>
-<p>Hemos recibido tu pedido correctamente. El <strong>Dr. Fernando Valenzuela</strong> revisará tu perfil y te confirmará los detalles en las próximas horas.</p>
-<h3>Resumen</h3>
-<pre style="font-family:monospace;background:#f9f9f9;padding:12px;border-radius:6px;">${summary}</pre>
-<p><strong>Total:</strong> $${finalTotal.toLocaleString()} MXN</p>
-<hr>
-<p style="color:#888;font-size:13px;">¿Tienes dudas? Escríbenos por WhatsApp al <strong>+52 662 424 2441</strong> o responde a este correo.</p>`;
-
-  await Promise.all([
-    sendEmail({ to: NOTIFY_EMAIL, subject: `🛒 Nuevo Pedido — ${shipping.name}`, html: drHtml }),
-    sendEmail({ to: shipping.email, subject: "✅ Recibimos tu pedido — PeptBiohacking", html: customerHtml }),
-  ]);
 }
 
 serve(async (req) => {
@@ -342,9 +262,6 @@ serve(async (req) => {
         status: 500, headers: { ...CORS, "Content-Type": "application/json" },
       });
     }
-
-    // Send notification emails (fire-and-forget)
-    sendNotifications(orderItems, shipping, finalTotal, upsell ?? false);
 
     return new Response(JSON.stringify({ init_point: data.init_point }), {
       status: 200, headers: { ...CORS, "Content-Type": "application/json" },
