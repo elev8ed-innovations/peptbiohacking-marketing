@@ -648,12 +648,11 @@ footer{background:var(--navy);padding:40px 32px 24px}
           data-es="Agregar" data-en="Add">Agregar</button>
       </div>
     </div>
-    <div class="pcard agotado" data-cat="bpc" onclick="showStockModal()">
+    <div class="pcard" data-cat="bpc">
       <div class="pcard-img">
         <img src="images/products/bpc157.jpg" class="pcard-photo" alt="BPC-157 / TB-500">
         <span class="pcat-badge" data-es="Recuperación" data-en="Recovery">Recuperación</span>
         <span class="pmed-badge" data-es="Médico" data-en="Medical">Médico</span>
-        <span class="stock-badge agotado" data-es="Agotado" data-en="Out of stock">Agotado</span>
       </div>
       <div class="pcard-body">
         <div class="pname">BPC-157 / TB-500</div>
@@ -693,12 +692,11 @@ footer{background:var(--navy);padding:40px 32px 24px}
           data-es="Agregar" data-en="Add">Agregar</button>
       </div>
     </div>
-    <div class="pcard agotado" data-cat="glow" onclick="showStockModal()">
+    <div class="pcard" data-cat="glow">
       <div class="pcard-img">
         <img src="images/products/glow.jpg" class="pcard-photo" alt="GLOW Protocol">
         <span class="pcat-badge" data-es="Piel y Estética" data-en="Skin & Aesthetics">Piel y Estética</span>
         <span class="pmed-badge" data-es="Médico" data-en="Medical">Médico</span>
-        <span class="stock-badge agotado" data-es="Agotado" data-en="Out of stock">Agotado</span>
       </div>
       <div class="pcard-body">
         <div class="pname">GLOW Protocol</div>
@@ -1301,62 +1299,58 @@ var CATALOG_PRICES = {
 };
 
 // ── Dynamic stock from Airtable ──
-// Maps product card data-cat attributes to SKUs
-const CAT_TO_SKU = {
-  'semax': 'semax-10', 'dsip': 'dsip-10', 'bpc': 'bpc-tb500',
-  'bpc-10': 'bpc-tb500-10', 'cjc': 'cjc-1295', 'tesa': 'tesa-ipa', 'glow': 'glow-70',
-  'motsc': 'motsc-10', 'epitalon': 'epitalon', 'pt141': 'pt141',
-  'ghk': 'ghk-cu-50', 'ghk-100': 'ghk-cu-100',
-  'kisspeptin': 'kisspeptin-10', 'nad': 'nad-buffered',
-  'glp3': 'glp3-12', 'glp3-24': 'glp3-24', 'glp3-48': 'glp3-48',
-  'bact-water': 'bact-water-30', 'bact-water-3': 'bact-water-3',
-};
-
 async function applyStockFromAirtable() {
   try {
     const resp = await fetch('https://myymemctdxwizhmwjbyk.supabase.co/functions/v1/get-inventory');
+    if (!resp.ok) throw new Error('Inventory request failed: ' + resp.status);
     const data = await resp.json();
     const stockMap = {};
     (data.inventory || []).forEach(function(p) {
-      if (p.sku) stockMap[p.sku] = p.stock;
+      if (p.sku) stockMap[p.sku] = p;
     });
 
     // Apply to product cards
     document.querySelectorAll('.pcard').forEach(function(card) {
-      var cat = card.getAttribute('data-cat');
-      // Map category to expected stock lookup key
-      var sku = CAT_TO_SKU[cat];
-      var stock = stockMap[sku];
-      if (stock === undefined) return; // no data, keep as-is
-      
       var btn = card.querySelector('button[data-sku]');
+      if (!btn) return;
+      var sku = btn.getAttribute('data-sku');
+      var inventoryItem = stockMap[sku];
+      if (!inventoryItem) return; // no data, keep backend validation as the final guard
+
+      var stock = Number(inventoryItem.stock) || 0;
       var existingBadge = card.querySelector('.stock-badge');
-      
-      if (stock <= 0) {
+      var unavailable = inventoryItem.status === 'Discontinued' || inventoryItem.status === 'Out of Stock' || stock <= 0;
+
+      if (unavailable) {
         card.classList.add('agotado');
         card.onclick = function() { showStockModal(); };
-        if (btn) btn.style.display = 'none';
+        btn.style.display = 'none';
         if (!existingBadge) {
-          var badge = document.createElement('span');
-          badge.className = 'stock-badge agotado';
-          badge.textContent = 'Agotado';
-          card.querySelector('.pcard-body').insertBefore(badge, card.querySelector('.pcard-body').firstChild);
+          existingBadge = document.createElement('span');
+          card.querySelector('.pcard-body').insertBefore(existingBadge, card.querySelector('.pcard-body').firstChild);
         }
+        existingBadge.className = 'stock-badge agotado';
+        existingBadge.textContent = 'Agotado';
       } else if (stock <= 10) {
+        card.classList.remove('agotado');
+        card.onclick = null;
+        btn.style.display = '';
         if (!existingBadge) {
-          var badge = document.createElement('span');
-          badge.className = 'stock-badge low';
-          badge.textContent = 'Stock: ' + stock;
-          card.querySelector('.pcard-body').insertBefore(badge, card.querySelector('.pcard-body').firstChild);
+          existingBadge = document.createElement('span');
+          card.querySelector('.pcard-body').insertBefore(existingBadge, card.querySelector('.pcard-body').firstChild);
         }
+        existingBadge.className = 'stock-badge low';
+        existingBadge.textContent = 'Stock: ' + stock;
       } else {
-        // In stock - show stock count
+        card.classList.remove('agotado');
+        card.onclick = null;
+        btn.style.display = '';
         if (!existingBadge) {
-          var badge = document.createElement('span');
-          badge.className = 'stock-badge in-stock';
-          badge.textContent = 'Stock: ' + stock;
-          card.querySelector('.pcard-body').insertBefore(badge, card.querySelector('.pcard-body').firstChild);
+          existingBadge = document.createElement('span');
+          card.querySelector('.pcard-body').insertBefore(existingBadge, card.querySelector('.pcard-body').firstChild);
         }
+        existingBadge.className = 'stock-badge in-stock';
+        existingBadge.textContent = 'Stock: ' + stock;
       }
     });
   } catch(e) {
