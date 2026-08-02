@@ -1,6 +1,3 @@
-[functions.create-mp-preference]
-verify_jwt = false
-
 [functions.submit-order]
 verify_jwt = false
 

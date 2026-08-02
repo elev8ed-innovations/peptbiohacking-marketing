@@ -446,15 +446,15 @@ footer{background:var(--navy);padding:40px 32px 24px}
       </div>
 
       <!-- Upsell: protocol + follow up -->
-      <div class="upsell-card selected" id="upsell-toggle" onclick="toggleUpsell()">
+      <div class="upsell-card" id="upsell-toggle" onclick="toggleUpsell()">
         <div class="upsell-row">
           <div>
             <div class="upsell-title" data-es="+ Protocolo Personalizado con Dr. V" data-en="+ Personalized Protocol with Dr. V">+ Protocolo Personalizado con Dr. V</div>
             <div class="upsell-desc" data-es="Consulta privada + guía de dosificación personalizada + seguimiento WhatsApp 30 días. Recomendado." data-en="Private consultation + personalized dosing guide + 30-day WhatsApp follow-up. Recommended.">Consulta + guía de dosificación + seguimiento 30 días.</div>
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-            <div class="upsell-check" id="upsell-check">✓</div>
-            <div class="upsell-price">+$1,200 MXN</div>
+            <div class="upsell-check" id="upsell-check"></div>
+            <div class="upsell-price">+$1,500 MXN</div>
           </div>
         </div>
       </div>
@@ -1001,8 +1001,8 @@ footer{background:var(--navy);padding:40px 32px 24px}
 const WA = '526624242441';
 let lang = 'es';
 let currentProduct = null;
-let upsellOn = true;
-const CONSULT_PRICE = 1200;
+let upsellOn = false;
+const CONSULT_PRICE = 1500;
 
 // LANG
 function setLang(l) {
@@ -1047,7 +1047,7 @@ function filterCat(cats, btn) {
 // ORDER MODAL
 function openOrder(id, name, price, cat) {
   currentProduct = { id, name, price, cat };
-  upsellOn = true;
+  upsellOn = false;
 
   // Set product info
   document.getElementById('order-pname').textContent = name;
@@ -1058,9 +1058,9 @@ function openOrder(id, name, price, cat) {
   document.getElementById('waiver-chk').checked = false;
   document.getElementById('order-cta').classList.remove('on');
 
-  // Upsell on by default
-  document.getElementById('upsell-toggle').classList.add('selected');
-  document.getElementById('upsell-check').textContent = '✓';
+  // Paid add-ons must require an explicit customer choice.
+  document.getElementById('upsell-toggle').classList.remove('selected');
+  document.getElementById('upsell-check').textContent = '';
 
   updateTotal();
   document.getElementById('order-modal').classList.add('open');
@@ -1276,7 +1276,6 @@ function openConsultFromShop() {
 
 <!-- CART + CHECKOUT JS -->
 <script>
-var MP_FN_URL = 'https://myymemctdxwizhmwjbyk.supabase.co/functions/v1/create-mp-preference';
 var cart = [];
 var CATALOG_NAMES = {
   'glp3-12': 'GLP-3 12mg', 'glp3-24': 'GLP-3 24mg', 'glp3-48': 'GLP-3 48mg',
