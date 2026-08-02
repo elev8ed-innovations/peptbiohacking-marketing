@@ -26,7 +26,6 @@ const CATALOG: Record<string, { title: string; price: number }> = {
   "nad-buffered":  { title: "NAD+ Buffered", price: 4100 },
   "bpc-tb500-10":  { title: "BPC-157/TB-500 10mg/10mg", price: 4900 },
   "kisspeptin-10": { title: "Kisspeptin 10mg", price: 3400 },
-  "igf1-lr3-100":  { title: "IGF-1 LR3 100mg", price: 0 },
 };
 
 const SITE = "https://peptbiohacking.com";
