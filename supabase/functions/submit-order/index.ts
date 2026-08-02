@@ -200,7 +200,7 @@ serve(async (req) => {
         failure: `${SITE}/checkout.html?status=failure`,
       },
       auto_return: "approved",
-      statement_descriptor: "PEPTBIOHACKING",
+      statement_descriptor: "PEPTBIOHACK",
       external_reference: orderReference,
       notification_url: `${Deno.env.get("SUPABASE_URL")}/functions/v1/mercado-pago-webhook`,
     };
