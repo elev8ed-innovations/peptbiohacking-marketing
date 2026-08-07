@@ -1,18 +1,6 @@
 [functions.submit-order]
 verify_jwt = false
 
-[functions.update-price]
-verify_jwt = false
-
-[functions.add-product]
-verify_jwt = false
-
-[functions.submit-ticket]
-verify_jwt = false
-
-[functions.setup-tickets-table]
-verify_jwt = false
-
 [functions.get-nil-likeness]
 verify_jwt = false
 
