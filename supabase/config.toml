@@ -1,6 +1,9 @@
 [functions.submit-order]
 verify_jwt = false
 
+[functions.submit-assessment]
+verify_jwt = false
+
 [functions.get-nil-likeness]
 verify_jwt = false
 
