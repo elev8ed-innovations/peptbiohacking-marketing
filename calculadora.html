@@ -517,10 +517,10 @@ function calc(){
   var doseMcg=parseFloat(document.getElementById('doseMcg').value)||0;
   if(!mg||!ml||!doseMcg){
     document.getElementById('resultUnits').textContent='—';
-    document.getElementById('resultConcentration').textContent='—';
-    document.getElementById('resultMcgPerMl').textContent='—';
-    document.getElementById('resultVolume').textContent='—';
-    document.getElementById('resultMcgPerUnit').textContent='—';
+    document.getElementById('resConc').textContent='—';
+    document.getElementById('resMcgMl').textContent='—';
+    document.getElementById('resVol').textContent='—';
+    document.getElementById('resMcgUnit').textContent='—';
     document.getElementById('syringeFill').style.width='0%';
     document.getElementById('syringeEnd').textContent='100';
     return;
@@ -531,10 +531,10 @@ function calc(){
   var units=Math.round(volumeMl*100);
   var mcgPerUnit=concMcgPerMl/100;
   document.getElementById('resultUnits').textContent=units+' UI';
-  document.getElementById('resultConcentration').textContent=concMgPerMl.toFixed(2)+' mg/ml';
-  document.getElementById('resultMcgPerMl').textContent=Math.round(concMcgPerMl).toLocaleString()+' mcg/ml';
-  document.getElementById('resultVolume').textContent=volumeMl.toFixed(3)+' ml';
-  document.getElementById('resultMcgPerUnit').textContent=mcgPerUnit.toFixed(1)+' mcg';
+  document.getElementById('resConc').textContent=concMgPerMl.toFixed(2)+' mg/ml';
+  document.getElementById('resMcgMl').textContent=Math.round(concMcgPerMl).toLocaleString()+' mcg/ml';
+  document.getElementById('resVol').textContent=volumeMl.toFixed(3)+' ml';
+  document.getElementById('resMcgUnit').textContent=mcgPerUnit.toFixed(1)+' mcg';
   var fillPct=Math.min(100,Math.round((units/100)*100));
   document.getElementById('syringeFill').style.width=fillPct+'%';
   document.getElementById('syringeEnd').textContent=units+' / 100';

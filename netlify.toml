@@ -15,3 +15,29 @@
 # Branch Deploy: same as preview
 [context.branch-deploy]
   publish = "."
+
+# Retire the legacy password-based inventory and pricing pages. Inventory
+# management now lives behind the authenticated doctor portal.
+[[redirects]]
+  from = "/inventario"
+  to = "https://peptbiohacking.mx/doctor/inventario"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/inventario.html"
+  to = "https://peptbiohacking.mx/doctor/inventario"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/precios"
+  to = "https://peptbiohacking.mx/doctor/inventario"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/precios.html"
+  to = "https://peptbiohacking.mx/doctor/inventario"
+  status = 302
+  force = true

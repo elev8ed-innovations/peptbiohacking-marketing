@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.116.0";
+import { escapeHtml, validateAssessment } from './input.mjs';
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -10,9 +11,31 @@ const cors = {
 serve(async (req) => {
   if (req.method === "OPTIONS")
     return new Response("ok", { headers: cors });
+  if (req.method !== 'POST') return new Response('Method Not Allowed', { status: 405, headers: { ...cors, Allow: 'POST, OPTIONS' } });
+
+  let body;
+  try {
+    // Bound the stream before parsing, including chunked requests.
+    const reader = req.body?.getReader();
+    if (!reader) throw new Error('Missing body');
+    const chunks: Uint8Array[] = [];
+    let size = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > 32768) { await reader.cancel(); throw new Error('Body too large'); }
+      chunks.push(value);
+    }
+    const bytes = new Uint8Array(size);
+    let offset = 0;
+    for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
+    body = validateAssessment(JSON.parse(new TextDecoder().decode(bytes)));
+  } catch {
+    return new Response(JSON.stringify({ ok: false, error: 'Evaluación inválida. Revisa tus datos.' }), { status: 400, headers: { ...cors, 'Content-Type': 'application/json' } });
+  }
 
   try {
-    const body = await req.json();
 
     const sb = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -53,10 +76,10 @@ serve(async (req) => {
       const g = (body.goals || []).join(", ") || "—";
       const s = (body.symptoms || []).join(", ") || "—";
       const recs = (body.recommended || [])
-        .map((r: any) => r.name + " — " + r.why)
+        .map((r: any) => escapeHtml(r.name) + " — " + escapeHtml(r.why))
         .join("<br>");
       const row = (label: string, val: string) =>
-        `<tr><td style="padding:6px 12px;font-weight:bold;white-space:nowrap">${label}</td><td style="padding:6px 12px">${val || "—"}</td></tr>`;
+        `<tr><td style="padding:6px 12px;font-weight:bold;white-space:nowrap">${escapeHtml(label)}</td><td style="padding:6px 12px">${escapeHtml(val || "—")}</td></tr>`;
 
       const html = `
 <h2 style="color:#1a3a5c">Nueva Evaluación — PeptBiohacking</h2>
@@ -82,7 +105,7 @@ ${row("Idioma", body.lang)}
 ${recs ? `<h3 style="color:#1a3a5c;margin-top:20px">Péptidos Recomendados</h3><p style="font-family:sans-serif;font-size:14px">${recs}</p>` : ""}
 <p style="margin-top:16px;color:#999;font-size:11px">ID: ${data.id} · Guardado automáticamente en Supabase</p>`;
 
-      await fetch("https://api.resend.com/emails", {
+      const notification = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -95,6 +118,7 @@ ${recs ? `<h3 style="color:#1a3a5c;margin-top:20px">Péptidos Recomendados</h3><
           html,
         }),
       });
+      if (!notification.ok) console.error('Assessment notification failed', notification.status);
     }
 
     return new Response(JSON.stringify({ ok: true, id: data.id }), {
@@ -102,8 +126,8 @@ ${recs ? `<h3 style="color:#1a3a5c;margin-top:20px">Péptidos Recomendados</h3><
     });
   } catch (e) {
     return new Response(
-      JSON.stringify({ ok: false, error: (e as Error).message || String(e) }),
-      { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
+      JSON.stringify({ ok: false, error: 'No se pudo guardar la evaluación. Intenta de nuevo.' }),
+      { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
     );
   }
 });
