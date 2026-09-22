@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { paymentMismatch } from "./payment-validation.mjs";
 
 const CLINIC_EMAIL = "arianarecreo@gmail.com";
 const FROM_EMAIL = "pedidos@peptbiohacking.com";
@@ -161,6 +162,12 @@ serve(async (req) => {
     const order = orders?.[0];
     if (!order) return new Response("order not found", { status: 200 });
 
+    const mismatch = paymentMismatch(payment, order, paymentId);
+    if (mismatch) {
+      console.error("Mercado Pago payment/order mismatch:", mismatch);
+      return new Response("payment mismatch", { status: 409 });
+    }
+
     if (payment.status === "approved") {
       const inventoryResponse = await fetch(`${supabaseUrl}/rest/v1/rpc/apply_paid_order_inventory`, {
         method: "POST",
@@ -175,11 +182,16 @@ serve(async (req) => {
         console.error("Inventory application failed:", await inventoryResponse.text());
         return new Response("inventory failed", { status: 500 });
       }
+      const inventoryResult = await inventoryResponse.json();
+      if (inventoryResult?.ok !== true) {
+        console.error("Inventory application rejected:", inventoryResult?.reason || "unknown reason");
+        return new Response("inventory rejected", { status: 409 });
+      }
       order.status = "approved";
       order.mp_payment_id = paymentId;
       await sendApprovedNotifications(supabaseUrl, serviceKey, order);
     } else {
-      await fetch(`${supabaseUrl}/rest/v1/orders?id=eq.${order.id}`, {
+      const statusResponse = await fetch(`${supabaseUrl}/rest/v1/orders?id=eq.${order.id}&status=neq.approved`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -188,6 +200,9 @@ serve(async (req) => {
         },
         body: JSON.stringify({ status: payment.status, mp_payment_id: paymentId }),
       });
+      if (!statusResponse.ok) {
+        throw new Error(`Order status update failed: ${await statusResponse.text()}`);
+      }
     }
 
     return new Response("ok", { status: 200 });
