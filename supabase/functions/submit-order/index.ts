@@ -33,7 +33,7 @@ const AIRTABLE_BASE = "appKo9tyGtIju3UHN";
 const AIRTABLE_INVENTORY = "Inventario";
 const AIRTABLE_ORDERS = "Ordenes";
 
-const CONSULT_PRICE = 1500;
+const CONSULT_PRICE = 1000;
 
 const SKU_BY_PRODUCT: Record<string, string> = {
   "glp312mg": "glp3-12", "glp324mg": "glp3-24", "glp348mg": "glp3-48",

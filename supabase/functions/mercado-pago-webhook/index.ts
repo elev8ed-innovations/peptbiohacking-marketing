@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const CLINIC_EMAIL = "arianarecreo@gmail.com";
 const FROM_EMAIL = "pedidos@peptbiohacking.com";
-const CONSULT_PRICE = 1500;
+const CONSULT_PRICE = 1000;
 
 function escapeHtml(value: unknown): string {
   return String(value ?? "")
@@ -99,7 +99,9 @@ ${order.upsell ? `<strong>Consulta Dr. V:</strong> +$${CONSULT_PRICE.toLocaleStr
 <h2>✅ Pago confirmado, ${escapeHtml(String(order.customer_name || "").split(" ")[0])}.</h2>
 <p>Recibimos tu pago correctamente. El <strong>Dr. Fernando Valenzuela</strong> revisará tu pedido y te contactará para coordinar el envío.</p>
 <h3>Resumen</h3><p>${summary}</p>
-<p><strong>Total pagado:</strong> $${Number(order.total).toLocaleString()} MXN</p>
+<p><strong>Subtotal:</strong> $${itemsTotal.toLocaleString()} MXN<br>
+${order.upsell ? `<strong>Consulta Dr. V:</strong> +$${CONSULT_PRICE.toLocaleString()} MXN<br>` : ""}
+<strong>Total pagado:</strong> $${Number(order.total).toLocaleString()} MXN</p>
 <p>¿Tienes dudas? Escríbenos por WhatsApp al <strong>+52 662 424 2441</strong>.</p>`;
 
   for (const notification of [
